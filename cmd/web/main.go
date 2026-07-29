@@ -6,6 +6,7 @@ import (
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/auth"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/store"
+	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/shared/config"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/shared/middleware"
 	module "github.com/PetaFlops-web/backend-shop-smbk/internal/shared/modules"
@@ -35,7 +36,6 @@ func main() {
 	validate := config.NewValidator(viperConfig)
 	app := config.NewFiber(viperConfig)
 
-
 	// Auth Middleware
 	authMiddleware := middleware.AuthMiddleware(viperConfig)
 
@@ -43,12 +43,14 @@ func main() {
 	authModule := auth.New(db, log, validate, viperConfig)
 	storeModule := store.New(db, validate, log)
 	productModule := product.New(db, log, validate, viperConfig)
+	transactionModule := transaction.New(db, log, validate, viperConfig, productModule.Client())
 
 	// Register all modules
 	modules := []module.Module{
 		authModule,
 		storeModule,
 		productModule,
+		transactionModule,
 	}
 
 	// Auto-migration (each module migrates its own tables)

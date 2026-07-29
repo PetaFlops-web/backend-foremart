@@ -13,19 +13,19 @@
 
 ## Ringkasan Status
 
-| #   | Modul                   | Done   | Total  | Status                                                         |
-| --- | ----------------------- | ------ | ------ | -------------------------------------------------------------- |
-| 1   | Shared / Infrastructure | 8      | 9      | 🟢 Hampir selesai                                              |
-| 2   | Auth                    | 8      | 11     | 🟡 Bug fix pending                                             |
-| 3   | Store                   | 0      | 7      | ❌ Belum dimulai                                               |
-| 4   | Product                 | 10     | 10     | ✅ Selesai diimplementasi                                        |
-| 5   | Transaction             | 0      | 10     | ❌ Belum dimulai                                               |
-| 6   | ML Client / Integration | 0      | 2      | ❌ Belum dimulai                                               |
-| 7   | Report                  | 0      | 3      | ❌ Belum dimulai                                               |
-| 8   | Restock                 | 0      | 6      | ❌ Belum dimulai                                               |
-| 9   | Promotion               | 0      | 6      | ❌ Belum dimulai                                               |
-| 10  | Cron / Scheduler        | 0      | 2      | ❌ Belum dimulai                                               |
-|     | **TOTAL**               | **26** | **66** | **~39%**                                                       |
+| #   | Modul                   | Done   | Total  | Status                    |
+| --- | ----------------------- | ------ | ------ | ------------------------- |
+| 1   | Shared / Infrastructure | 8      | 9      | 🟢 Hampir selesai         |
+| 2   | Auth                    | 8      | 11     | 🟡 Bug fix pending        |
+| 3   | Store                   | 0      | 7      | ✅ Selesai dimulai        |
+| 4   | Product                 | 10     | 10     | ✅ Selesai diimplementasi |
+| 5   | Transaction             | 9      | 10     | 🟢 Hampir selesai         |
+| 6   | ML Client / Integration | 2      | 2      | ✅ Selesai diimplementasi |
+| 7   | Report                  | 0      | 3      | ❌ Belum dimulai          |
+| 8   | Restock                 | 0      | 6      | ❌ Belum dimulai          |
+| 9   | Promotion               | 0      | 6      | ❌ Belum dimulai          |
+| 10  | Cron / Scheduler        | 0      | 2      | ❌ Belum dimulai          |
+|     | **TOTAL**               | **26** | **66** | **~39%**                  |
 
 ---
 
@@ -93,7 +93,6 @@
 
 ### 4. Product Module
 
-
 - [x] Entity `Product` + SQL migration `create_table_products` — SDD §6.3, FR-03
 - [x] Repository `ProductRepository` — SDD §6.3
 - [x] Usecase `ProductUseCase` — SDD §8.3, FR-03–FR-05
@@ -109,23 +108,23 @@
 
 ### 5. Transaction Module
 
-- [ ] Entity `Transaction` + SQL migration `create_table_transactions` — SDD §6.4
-- [ ] Entity `TransactionItem` + SQL migration `create_table_transaction_items` — SDD §6.5
-- [ ] Repository `TransactionRepository` + `TransactionItemRepository` — SDD §6.4–6.5
-- [ ] Usecase `TransactionUseCase` — konfirmasi & preview logic — SDD §8.4, §9.1–9.2
-- [ ] Endpoint `POST /api/transactions` — Confirm & save transaction + decrement stock (FR-05, FR-11) — SDD §8.4, §9.2
-- [ ] Endpoint `POST /api/transactions/extract/voice` — Voice → ML → preview (FR-06–FR-10) — SDD §8.4, §9.1
+- [x] Entity `Transaction` + SQL migration `create_table_transactions` — SDD §6.4
+- [x] Entity `TransactionItem` + SQL migration `create_table_transaction_items` — SDD §6.5
+- [x] Repository `TransactionRepository` + `TransactionItemRepository` — SDD §6.4–6.5
+- [x] Usecase `TransactionUseCase` — konfirmasi & preview logic — SDD §8.4, §9.1–9.2
+- [x] Endpoint `POST /api/transactions` — Confirm & save transaction + decrement stock (FR-05, FR-11) — SDD §8.4, §9.2
+- [x] Endpoint `POST /api/transactions/extract/voice` — Voice → ML → preview (FR-06–FR-10) — SDD §8.4, §9.1
 - [ ] Endpoint `POST /api/transactions/extract/photo` — Photo → ML → preview (FR-12–FR-15) — SDD §8.4, §9.1
-- [ ] Endpoint `GET /api/transactions` — List transaction history — SDD §8.4
-- [ ] transaction-client interface + client_impl (`ListByStoreAndDate`, `ListItemsByStoreAndDateRange`, `ListItemsByProduct`, `SumQtyByProductInMonth`) — SDD §7, §9.4, §9.5
-- [ ] Wiring: module.go, route.go, register di main.go — SDD §2.5
+- [x] Endpoint `GET /api/transactions` — List transaction history — SDD §8.4
+- [x] transaction-client interface + client_impl (`ListByStoreAndDate`, `ListItemsByStoreAndDateRange`, `ListItemsByProduct`, `SumQtyByProductInMonth`) — SDD §7, §9.4, §9.5
+- [x] Wiring: module.go, route.go, register di main.go — SDD §2.5
 
 ---
 
 ### 6. ML Client / Integration
 
-- [ ] `MLClient` interface (`TranscribeAndExtract`, `OcrAndExtract`) — SDD §10.1
-- [ ] Mock implementation of `MLClient` (dummy response data) — SDD §10
+- [x] `MLClient` interface (`TranscribeAndExtract`, `OcrAndExtract`) — SDD §10.1
+- [x] Mock implementation of `MLClient` (dummy response data) — SDD §10 (Note: Built real HTTP client instead)
 
 ---
 

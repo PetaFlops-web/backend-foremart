@@ -41,6 +41,12 @@ func (c *clientImpl) DecrementStock(ctx context.Context, id string, qty int) err
 		UpdateColumn("stock", gorm.Expr("stock - ?", qty)).Error
 }
 
+func (c *clientImpl) IncrementStock(ctx context.Context, id string, qty int) error {
+	return c.db.WithContext(ctx).Model(&entity.Product{}).
+		Where("id = ?", id).
+		UpdateColumn("stock", gorm.Expr("stock + ?", qty)).Error
+}
+
 func (c *clientImpl) Search(ctx context.Context, storeId string, keyword string) ([]product_client.ProductDTO, error) {
 	var products []entity.Product
 	tx := c.db.WithContext(ctx).Where("store_id = ?", storeId)

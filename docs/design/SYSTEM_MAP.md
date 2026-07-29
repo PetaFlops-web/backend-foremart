@@ -336,7 +336,7 @@ Backend-AIC/
 | `auth` | ✅ Implemented | `users` | 3 aktif | FR-01 (partial) | §3, §6.1, §8.1 |
 | `store` | ❌ Not Started | `stores` (planned) | 0 / 2 planned | FR-02 | §3, §6.2, §8.2 |
 | `product` | ✅ Implemented | `products` | 5 aktif | FR-03, FR-04, FR-05 | §3, §6.3, §8.3 |
-| `transaction` | ❌ Not Started | `transactions`, `transaction_items` (planned) | 0 / 4 planned | FR-05–FR-15 | §3, §6.4–6.5, §8.4 |
+| `transaction` | 🟡 Entity Only | `transactions`, `transaction_items` | 0 / 4 planned | FR-05–FR-15 | §3, §6.4–6.5, §8.4 |
 | `report` | ❌ Not Started | — (query via client) | 0 / 1 planned | FR-16–FR-20 | §3, §8.5 |
 | `restock` | ❌ Not Started | `restock_predictions` (planned) | 0 / 1 planned | FR-21–FR-22 | §3, §6.6, §8.6 |
 | `promotion` | ❌ Not Started | `promotion_logs` (planned) | 0 / 1 planned | FR-23–FR-25 | §3, §6.7, §8.6 |
@@ -433,7 +433,7 @@ Berikut schema yang direncanakan di SDD, belum ada kode/migration-nya:
 > Ref SDD §6.2
 
 
-#### Tabel `transactions` (Modul `transaction` — ❌ Not Started)
+#### Tabel `transactions` (Modul `transaction` — 🟡 Entity & Migration)
 
 | Field | Tipe | Keterangan |
 | --- | --- | --- |
@@ -445,7 +445,7 @@ Berikut schema yang direncanakan di SDD, belum ada kode/migration-nya:
 
 > Ref SDD §6.4
 
-#### Tabel `transaction_items` (Modul `transaction` — ❌ Not Started)
+#### Tabel `transaction_items` (Modul `transaction` — 🟡 Entity & Migration)
 
 | Field | Tipe | Keterangan |
 | --- | --- | --- |
