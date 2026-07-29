@@ -24,7 +24,7 @@ func New(db *gorm.DB, validate *validator.Validate, log *logrus.Logger) *Module 
 
 	return &Module{
 		Controller: storeController,
-		client:     &clientImpl{repo: *storeRepo},
+		client:     &clientImpl{repo: *storeRepo, db: db},
 		db:         db,
 	}
 }
