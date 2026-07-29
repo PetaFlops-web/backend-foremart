@@ -25,7 +25,7 @@
 | 8   | Restock                 | 0      | 6      | ❌ Belum dimulai          |
 | 9   | Promotion               | 0      | 6      | ❌ Belum dimulai          |
 | 10  | Cron / Scheduler        | 0      | 2      | ❌ Belum dimulai          |
-|     | **TOTAL**               | **26** | **66** | **~39%**                  |
+|     | **TOTAL**               | **29** | **66** | **~43%**                  |
 
 ---
 
