@@ -132,9 +132,9 @@
 
 > Report module tidak punya tabel sendiri — query via transaction-client dan product-client.
 
-- [ ] Usecase `ReportUseCase` — on-the-fly calculation (omset, untung, produk terlaris, sisa stok) — SDD §9.3, FR-16–FR-20
-- [ ] Endpoint `GET /api/reports/daily?date=YYYY-MM-DD` — Daily report (FR-16–FR-20) — SDD §8.5, §9.3
-- [ ] Wiring: module.go, route.go, register di main.go — SDD §2.5
+- [x] Usecase `ReportUseCase` — on-the-fly calculation (omset, untung, produk terlaris, sisa stok) — SDD §9.3, FR-16–FR-20
+- [x] Endpoint `GET /api/reports/daily?date=YYYY-MM-DD` — Daily report (FR-16–FR-20) — SDD §8.5, §9.3
+- [x] Wiring: module.go, route.go, register di main.go — SDD §2.5
 
 ---
 
