@@ -980,11 +980,11 @@ Volume: `mysql_data` (persistent data MySQL).
 | FR-13 | OCR foto nota | transaction + mlclient | — (internal) | ❌ Not Started | — |
 | FR-14 | NLP extraction dari OCR | transaction + mlclient | — (internal) | ❌ Not Started | Reuse model yg sama dgn suara |
 | FR-15 | Preview editable (foto) | transaction | Response dari extract/photo | ❌ Not Started | — |
-| FR-16 | Total omset, untung, jml transaksi | report | `GET /api/reports/daily` | ❌ Not Started | On-the-fly, bukan tabel ringkasan |
-| FR-17 | Untung dari snapshot harga | report | — (internal) | ❌ Not Started | — |
-| FR-18 | Produk terlaris | report | `GET /api/reports/daily` | ❌ Not Started | — |
-| FR-19 | Sisa stok produk | report | `GET /api/reports/daily` | ❌ Not Started | — |
-| FR-20 | Laporan read-only (tanpa closing) | report | — | ❌ Not Started | — |
+| FR-16 | Total omset, untung, jml transaksi | report | `GET /api/reports/daily` | ✅ Implemented | On-the-fly, bukan tabel ringkasan |
+| FR-17 | Untung dari snapshot harga | report | — (internal) | ✅ Implemented | — |
+| FR-18 | Produk terlaris | report | `GET /api/reports/daily` | ✅ Implemented | — |
+| FR-19 | Sisa stok produk | report | `GET /api/reports/daily` | ✅ Implemented | — |
+| FR-20 | Laporan read-only (tanpa closing) | report | — | ✅ Implemented | — |
 | FR-21 | Prediksi restock (cron) | restock | Background job | ❌ Not Started | — |
 | FR-22 | Simpan ke restock_predictions | restock | `GET /api/restock-predictions` | ❌ Not Started | — |
 | FR-23 | Cek rule promo (cron) | promotion | Background job | ❌ Not Started | — |
