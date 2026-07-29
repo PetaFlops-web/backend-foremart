@@ -308,6 +308,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/reports/daily": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Menghitung laporan harian toko secara on-the-fly berdasarkan transaksi dan stok terkini",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Report"
+                ],
+                "summary": "Menampilkan laporan harian",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tanggal laporan (YYYY-MM-DD)",
+                        "name": "date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model_DailyReportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stores": {
             "get": {
                 "security": [
@@ -448,6 +509,284 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Menampilkan daftar transaksi toko dengan pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Menampilkan riwayat transaksi",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Nomor Halaman",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Ukuran Halaman",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-array_github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Menyimpan transaksi yang telah direview oleh user dan mengurangi stok produk",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Konfirmasi \u0026 simpan transaksi",
+                "parameters": [
+                    {
+                        "description": "Data Transaksi Final",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.CreateTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/extract/voice": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengirim file audio ke ML untuk ditranskripsi, lalu mencocokkan dengan produk di DB untuk direview oleh user.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Ekstrak transaksi dari suara",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store ID",
+                        "name": "store_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Audio File (.wav, .mp3, dll)",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionPreviewResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil data transaksi beserta daftar item-nya",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Menampilkan detail satu transaksi",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Transaction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Menghapus data transaksi dan mengembalikan stok produk (increment)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Menghapus transaksi",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Transaction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store ID",
+                        "name": "store_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-any"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse"
                         }
@@ -742,6 +1081,89 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.BestSellingProductResponse": {
+            "type": "object",
+            "properties": {
+                "current_stock": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "qty_sold": {
+                    "type": "integer"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.DailyReportResponse": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "jumlah_transaksi": {
+                    "type": "integer"
+                },
+                "produk_terlaris": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.BestSellingProductResponse"
+                    }
+                },
+                "sisa_stok": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.StockSummaryResponse"
+                    }
+                },
+                "store": {
+                    "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.StoreSummaryResponse"
+                },
+                "total_omset": {
+                    "type": "integer"
+                },
+                "total_untung": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.StockSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.StoreSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "store_name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_store_src_model.StoreRequest": {
             "type": "object",
             "required": [
@@ -770,6 +1192,147 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.CreateTransactionRequest": {
+            "type": "object",
+            "required": [
+                "items",
+                "source",
+                "store_id"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionItemRequest"
+                    }
+                },
+                "source": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionItemRequest": {
+            "type": "object",
+            "required": [
+                "product_id",
+                "qty",
+                "selling_price_final"
+            ],
+            "properties": {
+                "product_id": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "selling_price_final": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionItemResponse": {
+            "type": "object",
+            "properties": {
+                "cost_price_snapshot": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "product_name_snapshot": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer"
+                },
+                "selling_price_snapshot": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionPreviewItemResponse": {
+            "type": "object",
+            "properties": {
+                "cost_price": {
+                    "type": "integer"
+                },
+                "detected_price": {
+                    "type": "integer"
+                },
+                "detected_qty": {
+                    "type": "number"
+                },
+                "is_matched": {
+                    "description": "Match status",
+                    "type": "boolean"
+                },
+                "product_id": {
+                    "description": "From Database (matched product)",
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "raw_text": {
+                    "description": "From ML",
+                    "type": "string"
+                },
+                "selling_price": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionPreviewResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionPreviewItemResponse"
+                    }
+                },
+                "raw_text": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionItemResponse"
+                    }
+                },
+                "source": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "transaction_date": {
                     "type": "string"
                 }
             }
@@ -846,6 +1409,26 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-array_github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionResponse"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.PageMetadata"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_auth_src_model_AuthResponse": {
             "type": "object",
             "properties": {
@@ -897,11 +1480,62 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model_DailyReportResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.DailyReportResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.PageMetadata"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_store_src_model_StoreResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_store_src_model.StoreResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.PageMetadata"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionPreviewResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionPreviewResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.PageMetadata"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionResponse"
                 },
                 "message": {
                     "type": "string"

@@ -114,6 +114,60 @@ definitions:
     - store_id
     - unit
     type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.BestSellingProductResponse:
+    properties:
+      current_stock:
+        type: integer
+      product_id:
+        type: string
+      product_name:
+        type: string
+      qty_sold:
+        type: integer
+      unit:
+        type: string
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.DailyReportResponse:
+    properties:
+      date:
+        type: string
+      jumlah_transaksi:
+        type: integer
+      produk_terlaris:
+        items:
+          $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.BestSellingProductResponse'
+        type: array
+      sisa_stok:
+        items:
+          $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.StockSummaryResponse'
+        type: array
+      store:
+        $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.StoreSummaryResponse'
+      total_omset:
+        type: integer
+      total_untung:
+        type: integer
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.StockSummaryResponse:
+    properties:
+      product_id:
+        type: string
+      product_name:
+        type: string
+      stock:
+        type: integer
+      unit:
+        type: string
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.StoreSummaryResponse:
+    properties:
+      id:
+        type: string
+      store_name:
+        type: string
+      user_id:
+        type: string
+    type: object
   github_com_PetaFlops-web_backend-shop-smbk_internal_modules_store_src_model.StoreRequest:
     properties:
       store_name:
@@ -133,6 +187,101 @@ definitions:
       updated_at:
         type: integer
       user_id:
+        type: string
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.CreateTransactionRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionItemRequest'
+        type: array
+      source:
+        type: string
+      store_id:
+        type: string
+    required:
+    - items
+    - source
+    - store_id
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionItemRequest:
+    properties:
+      product_id:
+        type: string
+      qty:
+        minimum: 1
+        type: integer
+      selling_price_final:
+        minimum: 0
+        type: integer
+    required:
+    - product_id
+    - qty
+    - selling_price_final
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionItemResponse:
+    properties:
+      cost_price_snapshot:
+        type: integer
+      id:
+        type: string
+      product_id:
+        type: string
+      product_name_snapshot:
+        type: string
+      qty:
+        type: integer
+      selling_price_snapshot:
+        type: integer
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionPreviewItemResponse:
+    properties:
+      cost_price:
+        type: integer
+      detected_price:
+        type: integer
+      detected_qty:
+        type: number
+      is_matched:
+        description: Match status
+        type: boolean
+      product_id:
+        description: From Database (matched product)
+        type: string
+      product_name:
+        type: string
+      raw_text:
+        description: From ML
+        type: string
+      selling_price:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionPreviewResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionPreviewItemResponse'
+        type: array
+      raw_text:
+        type: string
+    type: object
+  github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionResponse:
+    properties:
+      created_at:
+        type: integer
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionItemResponse'
+        type: array
+      source:
+        type: string
+      store_id:
+        type: string
+      transaction_date:
         type: string
     type: object
   github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse:
@@ -182,6 +331,19 @@ definitions:
       success:
         type: boolean
     type: object
+  ? github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-array_github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse
+  : properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionResponse'
+        type: array
+      message:
+        type: string
+      paging:
+        $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.PageMetadata'
+      success:
+        type: boolean
+    type: object
   ? github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_auth_src_model_AuthResponse
   : properties:
       data:
@@ -215,10 +377,43 @@ definitions:
       success:
         type: boolean
     type: object
+  ? github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model_DailyReportResponse
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model.DailyReportResponse'
+      message:
+        type: string
+      paging:
+        $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.PageMetadata'
+      success:
+        type: boolean
+    type: object
   ? github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_store_src_model_StoreResponse
   : properties:
       data:
         $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_store_src_model.StoreResponse'
+      message:
+        type: string
+      paging:
+        $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.PageMetadata'
+      success:
+        type: boolean
+    type: object
+  ? github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionPreviewResponse
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionPreviewResponse'
+      message:
+        type: string
+      paging:
+        $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.PageMetadata'
+      success:
+        type: boolean
+    type: object
+  ? github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.TransactionResponse'
       message:
         type: string
       paging:
@@ -422,6 +617,46 @@ paths:
       summary: Mengubah data produk yang sudah ada
       tags:
       - Product
+  /reports/daily:
+    get:
+      consumes:
+      - application/json
+      description: Menghitung laporan harian toko secara on-the-fly berdasarkan transaksi
+        dan stok terkini
+      parameters:
+      - description: Store ID
+        in: query
+        name: store_id
+        required: true
+        type: string
+      - description: Tanggal laporan (YYYY-MM-DD)
+        in: query
+        name: date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_report_src_model_DailyReportResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Menampilkan laporan harian
+      tags:
+      - Report
   /stores:
     get:
       description: Returns the store of the currently authenticated user
@@ -515,6 +750,187 @@ paths:
       summary: Update
       tags:
       - Store
+  /transactions:
+    get:
+      consumes:
+      - application/json
+      description: Menampilkan daftar transaksi toko dengan pagination
+      parameters:
+      - description: Store ID
+        in: query
+        name: store_id
+        required: true
+        type: string
+      - default: 1
+        description: Nomor Halaman
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Ukuran Halaman
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-array_github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Menampilkan riwayat transaksi
+      tags:
+      - Transaction
+    post:
+      consumes:
+      - application/json
+      description: Menyimpan transaksi yang telah direview oleh user dan mengurangi
+        stok produk
+      parameters:
+      - description: Data Transaksi Final
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Konfirmasi & simpan transaksi
+      tags:
+      - Transaction
+  /transactions/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus data transaksi dan mengembalikan stok produk (increment)
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Store ID
+        in: query
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Menghapus transaksi
+      tags:
+      - Transaction
+    get:
+      consumes:
+      - application/json
+      description: Mengambil data transaksi beserta daftar item-nya
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Store ID
+        in: query
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Menampilkan detail satu transaksi
+      tags:
+      - Transaction
+  /transactions/extract/voice:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Mengirim file audio ke ML untuk ditranskripsi, lalu mencocokkan
+        dengan produk di DB untuk direview oleh user.
+      parameters:
+      - description: Store ID
+        in: formData
+        name: store_id
+        required: true
+        type: string
+      - description: Audio File (.wav, .mp3, dll)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.WebResponse-github_com_PetaFlops-web_backend-shop-smbk_internal_modules_transaction_src_model_TransactionPreviewResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_PetaFlops-web_backend-shop-smbk_internal_shared_response.ApiErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Ekstrak transaksi dari suara
+      tags:
+      - Transaction
   /users:
     post:
       consumes:
