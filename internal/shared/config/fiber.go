@@ -17,10 +17,9 @@ func NewFiber(config *viper.Viper) *fiber.App {
 	})
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     config.GetString("web.cors.allow_origins"),
+		AllowOrigins:     "*",
 		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
 		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
-		AllowCredentials: true,
 	}))
 
 	app.Static("/public", "./public")
