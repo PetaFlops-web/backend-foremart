@@ -8,7 +8,7 @@ _Peta sistem backend Smart Commerce: kondisi aktual codebase, arsitektur, data, 
 | Kompetisi          | AI Innovation Challenge (AIC)                                       |
 | Dokumen Referensi  | PRD v0.1 (08 Jul 2026), SDD v0.1                                   |
 | Tanggal Dibuat     | 12 Juli 2026                                                        |
-| Status Codebase    | Awal — 1 dari 7 modul fully implemented, 1 stub, 5 belum dimulai   |
+| Status Codebase    | 3 dari 7 modul fully implemented, 4 belum dimulai   |
 | Source of Truth     | Dokumen ini mengikuti **kondisi aktual codebase**, bukan aspirasi dokumen |
 
 ---
