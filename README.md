@@ -53,7 +53,7 @@ Untuk menjalankan backend ini secara lokal di mesin Anda, ikuti langkah-langkah 
    ```
    Tunggu beberapa saat hingga container database MySQL siap (ready for connections) dan backend berjalan.
 
-## Informasi Endpoint untuk Tim Frontend (FE)
+## Informasi Endpoint
 
 ### Base URL
 Bila dijalankan secara lokal dengan konfigurasi default, Base URL API adalah:
