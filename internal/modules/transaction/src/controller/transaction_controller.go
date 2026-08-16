@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"bytes"
-	"io"
 	"math"
 
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction/src/model"
@@ -37,45 +35,45 @@ func NewTransactionController(useCase *usecase.TransactionUseCase, logger *logru
 // @Failure      400      {object} response.ApiErrorResponse
 // @Failure      500      {object} response.ApiErrorResponse
 // @Router       /transactions/extract/voice [post]
-func (c *TransactionController) ExtractVoice(ctx *fiber.Ctx) error {
-	storeId := ctx.FormValue("store_id")
-	if storeId == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "store_id wajib diisi")
-	}
+// func (c *TransactionController) ExtractVoice(ctx *fiber.Ctx) error {
+// 	storeId := ctx.FormValue("store_id")
+// 	if storeId == "" {
+// 		return fiber.NewError(fiber.StatusBadRequest, "store_id wajib diisi")
+// 	}
 
-	file, err := ctx.FormFile("file")
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "file audio tidak ditemukan")
-	}
+// 	file, err := ctx.FormFile("file")
+// 	if err != nil {
+// 		return fiber.NewError(fiber.StatusBadRequest, "file audio tidak ditemukan")
+// 	}
 
-	fileData, err := file.Open()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "gagal membaca file audio")
-	}
-	defer fileData.Close()
+// 	fileData, err := file.Open()
+// 	if err != nil {
+// 		return fiber.NewError(fiber.StatusInternalServerError, "gagal membaca file audio")
+// 	}
+// 	defer fileData.Close()
 
-	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, fileData); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "gagal memproses isi file audio")
-	}
+// 	buf := bytes.NewBuffer(nil)
+// 	if _, err := io.Copy(buf, fileData); err != nil {
+// 		return fiber.NewError(fiber.StatusInternalServerError, "gagal memproses isi file audio")
+// 	}
 
-	request := &model.ExtractVoiceRequest{
-		StoreId:   storeId,
-		AudioData: buf.Bytes(),
-		Filename:  file.Filename,
-	}
+// 	request := &model.ExtractVoiceRequest{
+// 		StoreId:   storeId,
+// 		AudioData: buf.Bytes(),
+// 		Filename:  file.Filename,
+// 	}
 
-	resp, err := c.UseCase.ExtractVoice(ctx.UserContext(), request)
-	if err != nil {
-		return err
-	}
+// 	resp, err := c.UseCase.ExtractVoice(ctx.UserContext(), request)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return ctx.JSON(response.WebResponse[*model.TransactionPreviewResponse]{
-		Data:    resp,
-		Message: "Berhasil mengekstrak transaksi dari suara",
-		Success: true,
-	})
-}
+// 	return ctx.JSON(response.WebResponse[*model.TransactionPreviewResponse]{
+// 		Data:    resp,
+// 		Message: "Berhasil mengekstrak transaksi dari suara",
+// 		Success: true,
+// 	})
+// }
 
 // Create godoc
 // @Summary      Konfirmasi & simpan transaksi

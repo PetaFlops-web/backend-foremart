@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product-client"
+	product_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product-client"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction/src/entity"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction/src/model"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction/src/model/converter"
@@ -48,65 +48,65 @@ func NewTransactionUseCase(
 }
 
 // ExtractVoice handles audio transcription and transaction preview merging.
-func (u *TransactionUseCase) ExtractVoice(ctx context.Context, req *model.ExtractVoiceRequest) (*model.TransactionPreviewResponse, error) {
-	if err := u.Validate.Struct(req); err != nil {
-		u.Log.Warnf("Invalid extract request: %+v", err)
-		return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid request format")
-	}
+// func (u *TransactionUseCase) ExtractVoice(ctx context.Context, req *model.ExtractVoiceRequest) (*model.TransactionPreviewResponse, error) {
+// 	if err := u.Validate.Struct(req); err != nil {
+// 		u.Log.Warnf("Invalid extract request: %+v", err)
+// 		return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid request format")
+// 	}
 
-	// 1. Call ML Service
-	mlRes, err := u.MLClient.TranscribeAndExtract(ctx, req.AudioData, req.Filename)
-	if err != nil {
-		u.Log.Errorf("Failed calling ML service: %+v", err)
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Gagal memproses audio transaksi")
-	}
+// 	// 1. Call ML Service
+// 	mlRes, err := u.MLClient.TranscribeAndExtract(ctx, req.AudioData, req.Filename)
+// 	if err != nil {
+// 		u.Log.Errorf("Failed calling ML service: %+v", err)
+// 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Gagal memproses audio transaksi")
+// 	}
 
-	// 2. Build Preview Items
-	previewResponse := &model.TransactionPreviewResponse{
-		RawText: mlRes.RawText,
-		Items:   make([]model.TransactionPreviewItemResponse, len(mlRes.Items)),
-	}
+// 	// 2. Build Preview Items
+// 	previewResponse := &model.TransactionPreviewResponse{
+// 		RawText: mlRes.RawText,
+// 		Items:   make([]model.TransactionPreviewItemResponse, len(mlRes.Items)),
+// 	}
 
-	for i, extractedItem := range mlRes.Items {
-		previewItem := model.TransactionPreviewItemResponse{
-			RawText:       extractedItem.Item,
-			DetectedQty:   extractedItem.Qty,
-			DetectedPrice: extractedItem.Harga,
-			IsMatched:     false,
-		}
+// 	for i, extractedItem := range mlRes.Items {
+// 		previewItem := model.TransactionPreviewItemResponse{
+// 			RawText:       extractedItem.Item,
+// 			DetectedQty:   extractedItem.Qty,
+// 			DetectedPrice: extractedItem.Harga,
+// 			IsMatched:     false,
+// 		}
 
-		// Stage 1: Search using produk_katalog (ML standard)
-		var bestMatch *product_client.ProductDTO
-		if extractedItem.ProdukKatalog != "" {
-			results, err := u.ProductClient.Search(ctx, req.StoreId, extractedItem.ProdukKatalog)
-			if err == nil && len(results) > 0 {
-				bestMatch = &results[0]
-			}
-		}
+// 		// Stage 1: Search using produk_katalog (ML standard)
+// 		var bestMatch *product_client.ProductDTO
+// 		if extractedItem.ProdukKatalog != "" {
+// 			results, err := u.ProductClient.Search(ctx, req.StoreId, extractedItem.ProdukKatalog)
+// 			if err == nil && len(results) > 0 {
+// 				bestMatch = &results[0]
+// 			}
+// 		}
 
-		// Stage 2: Fallback search using raw item
-		if bestMatch == nil && extractedItem.Item != "" {
-			results, err := u.ProductClient.Search(ctx, req.StoreId, extractedItem.Item)
-			if err == nil && len(results) > 0 {
-				bestMatch = &results[0]
-			}
-		}
+// 		// Stage 2: Fallback search using raw item
+// 		if bestMatch == nil && extractedItem.Item != "" {
+// 			results, err := u.ProductClient.Search(ctx, req.StoreId, extractedItem.Item)
+// 			if err == nil && len(results) > 0 {
+// 				bestMatch = &results[0]
+// 			}
+// 		}
 
-		// Populate DB data if matched
-		if bestMatch != nil {
-			previewItem.IsMatched = true
-			previewItem.ProductId = bestMatch.ID
-			previewItem.ProductName = bestMatch.ProductName
-			previewItem.SellingPrice = bestMatch.SellingPrice
-			previewItem.CostPrice = bestMatch.CostPrice
-			previewItem.Stock = bestMatch.Stock
-		}
+// 		// Populate DB data if matched
+// 		if bestMatch != nil {
+// 			previewItem.IsMatched = true
+// 			previewItem.ProductId = bestMatch.ID
+// 			previewItem.ProductName = bestMatch.ProductName
+// 			previewItem.SellingPrice = bestMatch.SellingPrice
+// 			previewItem.CostPrice = bestMatch.CostPrice
+// 			previewItem.Stock = bestMatch.Stock
+// 		}
 
-		previewResponse.Items[i] = previewItem
-	}
+// 		previewResponse.Items[i] = previewItem
+// 	}
 
-	return previewResponse, nil
-}
+// 	return previewResponse, nil
+// }
 
 // Create persists a confirmed transaction into the database.
 func (u *TransactionUseCase) Create(ctx context.Context, req *model.CreateTransactionRequest) (*model.TransactionResponse, error) {
