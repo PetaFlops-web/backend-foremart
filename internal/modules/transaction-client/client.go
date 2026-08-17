@@ -28,4 +28,5 @@ type Client interface {
 	ListItemsByStoreAndDate(ctx context.Context, storeId string, date string) ([]TransactionItemDTO, error)
 	ListItemsByProduct(ctx context.Context, productId string, lookbackDays int) ([]TransactionItemDTO, error)
 	SumQtyByProductInMonth(ctx context.Context, productId string, yearMonth string) (int, error)
+	GetDailySalesHistoryByProduct(ctx context.Context, storeID string, productID string, historyDays int, endDate string) ([]float64, error)
 }
