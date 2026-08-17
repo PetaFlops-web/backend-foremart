@@ -6,6 +6,7 @@ import (
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/auth"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/report"
+	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/restock"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/store"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/shared/config"
@@ -46,7 +47,7 @@ func main() {
 	productModule := product.New(db, log, validate, viperConfig)
 	transactionModule := transaction.New(db, log, validate, viperConfig, productModule.Client())
 	reportModule := report.New(log, validate, transactionModule.Client(), productModule.Client(), storeModule.Client())
-
+	restockModule := restock.New(db, log, validate, viperConfig, storeModule.Client(), productModule.Client(), transactionModule.Client())
 	// Register all modules
 	modules := []module.Module{
 		authModule,
@@ -54,6 +55,7 @@ func main() {
 		productModule,
 		transactionModule,
 		reportModule,
+		restockModule,
 	}
 
 	// Auto-migration (each module migrates its own tables)
