@@ -56,6 +56,19 @@ func (c *clientImpl) SumQtyByProductInMonth(ctx context.Context, productId strin
 	return c.transactionItemRepo.SumQtyByProductInMonth(c.db.WithContext(ctx), productId, yearMonth)
 }
 
+func (c *clientImpl) GetDailySalesHistoryByProduct(ctx context.Context, storeID string, productID string, historyDays int, endDate string) ([]float64, error) {
+	rows, err := c.transactionItemRepo.GetDailySalesHistoryByProduct(c.db.WithContext(ctx), storeID, productID, historyDays, endDate)
+	if err != nil {
+		return nil, err
+	}
+
+	history := make([]float64, len(rows))
+	for i, row := range rows {
+		history[i] = row.TotalQty
+	}
+	return history, nil
+}
+
 func mapItemsToDTO(items []entity.TransactionItem) []transaction_client.TransactionItemDTO {
 	dtos := make([]transaction_client.TransactionItemDTO, len(items))
 	for i, item := range items {
