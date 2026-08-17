@@ -37,7 +37,7 @@ func RestockPredictionsToResponses(predictions []entity.RestockPrediction) []mod
 	return responses
 }
 
-func formatDate(date time.Time) string {
+func formatDate(date *time.Time) string {
 	if date.IsZero() {
 		return ""
 	}
