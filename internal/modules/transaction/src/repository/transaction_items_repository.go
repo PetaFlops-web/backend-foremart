@@ -79,36 +79,52 @@ func (r *TransactionItemRepository) SumQtyByProductInMonth(db *gorm.DB, productI
 	return totalQty, err
 }
 
-// DailySalesByProduct is a row returned by the daily-sales aggregate query.
+// DailySalesByProduct is a row in the zero-filled daily-sales series.
 type DailySalesByProduct struct {
 	SaleDate string  `gorm:"column:sale_date"`
 	TotalQty float64 `gorm:"column:total_qty"`
 }
 
-// GetDailySalesHistoryByProduct aggregates daily total qty sold for a product
-// in a store over a date range [endDate - historyDays + 1 .. endDate].
-// Returns one row per day ordered oldest → newest; days with no sales get 0
-// via a COALESCE fill at the caller level (here we return only actual sale days).
+// GetDailySalesHistoryByProduct returns a complete daily sales series for a
+// product in a store over the window [endDate - (historyDays-1) .. endDate],
+// ordered oldest → newest. Days with no sales are filled with 0 so the series
+// always has exactly historyDays entries (one per calendar day).
 func (r *TransactionItemRepository) GetDailySalesHistoryByProduct(db *gorm.DB, storeID string, productID string, historyDays int, endDate string) ([]DailySalesByProduct, error) {
-	var results []DailySalesByProduct
-
-	startDate := time.Now()
-	if endDate != "" {
-		parsed, err := time.Parse("2006-01-02", endDate)
-		if err == nil {
-			startDate = parsed
-		}
+	parsedEnd, err := time.Parse("2006-01-02", endDate)
+	if err != nil {
+		return nil, err
 	}
-	start := startDate.AddDate(0, 0, -(historyDays - 1)).Format("2006-01-02")
+	if historyDays < 1 {
+		return nil, nil
+	}
 
-	err := db.Model(&entity.TransactionItem{}).
+	start := parsedEnd.AddDate(0, 0, -(historyDays - 1))
+
+	var rows []DailySalesByProduct
+	err = db.Model(&entity.TransactionItem{}).
 		Select("transactions.transaction_date AS sale_date, COALESCE(SUM(transaction_items.qty), 0) AS total_qty").
 		Joins("JOIN transactions ON transaction_items.transaction_id = transactions.id").
 		Where("transactions.store_id = ? AND transaction_items.product_id = ? AND transactions.transaction_date >= ? AND transactions.transaction_date <= ?",
-			storeID, productID, start, endDate).
+			storeID, productID, start.Format("2006-01-02"), endDate).
 		Group("transactions.transaction_date").
-		Order("transactions.transaction_date ASC").
-		Scan(&results).Error
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return results, err
+	salesByDate := make(map[string]float64, len(rows))
+	for _, row := range rows {
+		salesByDate[row.SaleDate] = row.TotalQty
+	}
+
+	series := make([]DailySalesByProduct, 0, historyDays)
+	for i := 0; i < historyDays; i++ {
+		day := start.AddDate(0, 0, i).Format("2006-01-02")
+		series = append(series, DailySalesByProduct{
+			SaleDate: day,
+			TotalQty: salesByDate[day],
+		})
+	}
+
+	return series, nil
 }
