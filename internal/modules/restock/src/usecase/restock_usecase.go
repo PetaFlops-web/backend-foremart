@@ -133,7 +133,7 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 
 	return &model.GenerateRestockPredictionResponse{
 		StoreID:            req.StoreID,
-		ForecastDate:       req.ForecastDate,
+		ForecastDate:       forecastDate.Format("2006-01-02"),
 		HistoryDays:        req.HistoryDays,
 		ForecastWindowDays: req.ForecastWindowDays,
 		GeneratedCount:     len(items),
@@ -162,9 +162,10 @@ func (u *RestockUseCase) List(ctx context.Context, storeID string) ([]model.Rest
 	return converter.RestockPredictionsToResponses(predictions), nil
 }
 
-func (u *RestockUseCase) applyDefaultsAndValidate(req *model.GenerateRestockPredictionRequest) (time.Time, error) {
-	if req.ForecastDate == "" {
-		req.ForecastDate = time.Now().AddDate(0, 0, 1).Format("2006-01-02")
+func (u *RestockUseCase) applyDefaultsAndValidate(req *model.GenerateRestockPredictionRequest) (*time.Time, error) {
+	if req.ForecastDate == nil {
+		tomorrow := time.Now().AddDate(0, 0, 1)
+		req.ForecastDate = &tomorrow
 	}
 	if req.HistoryDays == 0 {
 		req.HistoryDays = defaultHistoryDays
@@ -175,21 +176,17 @@ func (u *RestockUseCase) applyDefaultsAndValidate(req *model.GenerateRestockPred
 
 	if err := u.Validate.Struct(req); err != nil {
 		u.Log.Warnf("Invalid restock request : %+v", err)
-		return time.Time{}, fiber.NewError(fiber.StatusBadRequest, "Format data request tidak valid")
+		return nil, fiber.NewError(fiber.StatusBadRequest, "Format data request tidak valid")
 	}
 
-	forecastDate, err := time.Parse("2006-01-02", req.ForecastDate)
-	if err != nil {
-		return time.Time{}, fiber.NewError(fiber.StatusBadRequest, "forecast_date harus berformat YYYY-MM-DD")
-	}
 	if req.HistoryDays < defaultHistoryDays {
-		return time.Time{}, fiber.NewError(fiber.StatusBadRequest, "history_days minimal 30 hari")
+		return nil, fiber.NewError(fiber.StatusBadRequest, "history_days minimal 30 hari")
 	}
 	if req.ForecastWindowDays < 1 {
-		return time.Time{}, fiber.NewError(fiber.StatusBadRequest, "forecast_window_days minimal 1 hari")
+		return nil, fiber.NewError(fiber.StatusBadRequest, "forecast_window_days minimal 1 hari")
 	}
 
-	return forecastDate, nil
+	return req.ForecastDate, nil
 }
 
 func (u *RestockUseCase) resolveProducts(ctx context.Context, storeID string, productID string) ([]product_client.ProductDTO, error) {
@@ -224,7 +221,7 @@ func (u *RestockUseCase) predictEligibleItems(ctx context.Context, req *model.Ge
 		batchRequest.Predictions[i] = mlclient.InventoryPredictionRequest{
 			Store:        req.StoreID,
 			Item:         item.Product.ID,
-			Date:         req.ForecastDate,
+			Date:         req.ForecastDate.Format("2006-01-02"),
 			SalesHistory: item.History,
 		}
 	}
@@ -259,7 +256,7 @@ func (u *RestockUseCase) predictEligibleItemsIndividually(ctx context.Context, r
 		response, err := u.MLClient.PredictInventory(ctx, mlclient.InventoryPredictionRequest{
 			Store:        req.StoreID,
 			Item:         item.Product.ID,
-			Date:         req.ForecastDate,
+			Date:         req.ForecastDate.Format("2006-01-02"),
 			SalesHistory: item.History,
 		})
 		if err != nil {
