@@ -13,6 +13,8 @@ services:
       - "8080:8080"
     networks:
       - aic_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./config.json:/app/config.json
 
