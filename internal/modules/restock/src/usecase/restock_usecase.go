@@ -91,13 +91,13 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 		eligible = append(eligible, productWithHistory{Product: product, History: history})
 	}
 
-	predictions := u.predictEligibleItems(ctx, req, eligible, &skipped)
+	predictions := u.predictEligibleItems(ctx, req, forecastDate.Format("2006-01-02"), eligible, &skipped)
 	items := make([]model.RestockPredictionResponse, 0, len(predictions))
 
 	for _, prediction := range predictions {
 		product := prediction.Product
 		predictedSales := maxInt(0, prediction.Response.PredictedSales)
-		neededStock := predictedSales * req.ForecastWindowDays
+		neededStock := predictedSales * req.DaysAhead
 		recommendedQty := maxInt(0, neededStock-product.Stock)
 		if recommendedQty == 0 {
 			skipped = append(skipped, skippedItem(product, skipReasonNoRestockNeeded))
@@ -120,7 +120,7 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 			ForecastDate:          forecastDate,
 			PredictedDailySales:   predictedSales,
 			CurrentStock:          product.Stock,
-			ForecastWindowDays:    req.ForecastWindowDays,
+			ForecastWindowDays:    req.DaysAhead,
 			RecommendedRestockQty: recommendedQty,
 			StockoutDate:          &stockoutDate,
 			HistoryDays:           req.HistoryDays,
@@ -135,14 +135,10 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 	}
 
 	return &model.GenerateRestockPredictionResponse{
-		StoreID:            req.StoreID,
-		ForecastDate:       forecastDate.Format("2006-01-02"),
-		HistoryDays:        req.HistoryDays,
-		ForecastWindowDays: req.ForecastWindowDays,
-		GeneratedCount:     len(items),
-		SkippedCount:       len(skipped),
-		Items:              items,
-		Skipped:            skipped,
+		GeneratedCount: len(items),
+		SkippedCount:   len(skipped),
+		Items:          items,
+		Skipped:        skipped,
 	}, nil
 }
 
@@ -166,15 +162,11 @@ func (u *RestockUseCase) List(ctx context.Context, storeID string) ([]model.Rest
 }
 
 func (u *RestockUseCase) applyDefaultsAndValidate(req *model.GenerateRestockPredictionRequest) (*time.Time, error) {
-	if req.ForecastDate == nil {
-		tomorrow := time.Now().AddDate(0, 0, 1)
-		req.ForecastDate = &tomorrow
-	}
 	if req.HistoryDays == 0 {
 		req.HistoryDays = defaultHistoryDays
 	}
-	if req.ForecastWindowDays == 0 {
-		req.ForecastWindowDays = defaultForecastWindowDays
+	if req.DaysAhead == 0 {
+		req.DaysAhead = defaultForecastWindowDays
 	}
 
 	if err := u.Validate.Struct(req); err != nil {
@@ -185,11 +177,12 @@ func (u *RestockUseCase) applyDefaultsAndValidate(req *model.GenerateRestockPred
 	if req.HistoryDays < defaultHistoryDays {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "history_days minimal 30 hari")
 	}
-	if req.ForecastWindowDays < 1 {
-		return nil, fiber.NewError(fiber.StatusBadRequest, "forecast_window_days minimal 1 hari")
+	if req.DaysAhead < 1 {
+		return nil, fiber.NewError(fiber.StatusBadRequest, "days_ahead minimal 1 hari")
 	}
 
-	return req.ForecastDate, nil
+	forecastDate := time.Now().AddDate(0, 0, 1)
+	return &forecastDate, nil
 }
 
 func (u *RestockUseCase) resolveProducts(ctx context.Context, storeID string, productID string) ([]product_client.ProductDTO, error) {
@@ -214,7 +207,7 @@ func (u *RestockUseCase) resolveProducts(ctx context.Context, storeID string, pr
 	return []product_client.ProductDTO{*product}, nil
 }
 
-func (u *RestockUseCase) predictEligibleItems(ctx context.Context, req *model.GenerateRestockPredictionRequest, eligible []productWithHistory, skipped *[]model.RestockSkippedItemResponse) []productPrediction {
+func (u *RestockUseCase) predictEligibleItems(ctx context.Context, req *model.GenerateRestockPredictionRequest, forecastDate string, eligible []productWithHistory, skipped *[]model.RestockSkippedItemResponse) []productPrediction {
 	if len(eligible) == 0 {
 		return nil
 	}
@@ -224,7 +217,7 @@ func (u *RestockUseCase) predictEligibleItems(ctx context.Context, req *model.Ge
 		batchRequest.Predictions[i] = mlclient.InventoryPredictionRequest{
 			Store:        req.StoreID,
 			Item:         item.Product.ID,
-			Date:         req.ForecastDate.Format("2006-01-02"),
+			Date:         forecastDate,
 			SalesHistory: item.History,
 		}
 	}
@@ -232,7 +225,7 @@ func (u *RestockUseCase) predictEligibleItems(ctx context.Context, req *model.Ge
 	batchResponse, err := u.MLClient.PredictInventoryBatch(ctx, batchRequest)
 	if err != nil {
 		u.Log.Warnf("Batch inventory prediction failed, falling back to per-product calls: %+v", err)
-		return u.predictEligibleItemsIndividually(ctx, req, eligible, skipped)
+		return u.predictEligibleItemsIndividually(ctx, req, forecastDate, eligible, skipped)
 	}
 
 	responseByProductID := make(map[string]mlclient.InventoryPredictionResponse, len(batchResponse))
@@ -253,13 +246,13 @@ func (u *RestockUseCase) predictEligibleItems(ctx context.Context, req *model.Ge
 	return predictions
 }
 
-func (u *RestockUseCase) predictEligibleItemsIndividually(ctx context.Context, req *model.GenerateRestockPredictionRequest, eligible []productWithHistory, skipped *[]model.RestockSkippedItemResponse) []productPrediction {
+func (u *RestockUseCase) predictEligibleItemsIndividually(ctx context.Context, req *model.GenerateRestockPredictionRequest, forecastDate string, eligible []productWithHistory, skipped *[]model.RestockSkippedItemResponse) []productPrediction {
 	predictions := make([]productPrediction, 0, len(eligible))
 	for _, item := range eligible {
 		response, err := u.MLClient.PredictInventory(ctx, mlclient.InventoryPredictionRequest{
 			Store:        req.StoreID,
 			Item:         item.Product.ID,
-			Date:         req.ForecastDate.Format("2006-01-02"),
+			Date:         forecastDate,
 			SalesHistory: item.History,
 		})
 		if err != nil {
