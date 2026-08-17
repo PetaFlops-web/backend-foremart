@@ -35,11 +35,10 @@ func (r *RestockRepository) UpsertByStoreProductDate(ctx context.Context, predic
 		},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"product_name",
+			"unit",
 			"predicted_daily_sales",
 			"current_stock",
-			"forecast_window_days",
 			"recommended_restock_qty",
-			"stockout_date",
 			"history_days",
 			"updated_at",
 		}),

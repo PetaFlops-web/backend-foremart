@@ -19,8 +19,7 @@ import (
 )
 
 const (
-	defaultHistoryDays        = 30
-	defaultForecastWindowDays = 7
+	defaultHistoryDays = 30
 
 	skipReasonInsufficientHistory = "insufficient_history"
 	skipReasonMLError             = "ml_error"
@@ -74,7 +73,11 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 	}
 
 	endDate := forecastDate.AddDate(0, 0, -1).Format("2006-01-02")
-	
+	daysAhead := int(time.Until(*forecastDate).Hours()/24) + 1
+	if daysAhead < 1 {
+		daysAhead = 1
+	}
+
 	eligible := make([]productWithHistory, 0, len(products))
 	skipped := make([]model.RestockSkippedItemResponse, 0)
 
@@ -97,7 +100,7 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 	for _, prediction := range predictions {
 		product := prediction.Product
 		predictedSales := maxInt(0, prediction.Response.PredictedSales)
-		neededStock := predictedSales * req.DaysAhead
+		neededStock := predictedSales * daysAhead
 		recommendedQty := maxInt(0, neededStock-product.Stock)
 		if recommendedQty == 0 {
 			skipped = append(skipped, skippedItem(product, skipReasonNoRestockNeeded))
@@ -110,19 +113,16 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Gagal membuat ID prediksi restock")
 		}
 
-		stockoutDate := forecastDate.AddDate(0, 0, daysUntilStockout(product.Stock, predictedSales))
-
 		entityPrediction := &entity.RestockPrediction{
 			ID:                    predictionID,
 			StoreID:               req.StoreID,
 			ProductID:             product.ID,
 			ProductName:           product.ProductName,
+			Unit:                  product.Unit,
 			ForecastDate:          forecastDate,
 			PredictedDailySales:   predictedSales,
 			CurrentStock:          product.Stock,
-			ForecastWindowDays:    req.DaysAhead,
 			RecommendedRestockQty: recommendedQty,
-			StockoutDate:          &stockoutDate,
 			HistoryDays:           req.HistoryDays,
 		}
 
@@ -162,11 +162,12 @@ func (u *RestockUseCase) List(ctx context.Context, storeID string) ([]model.Rest
 }
 
 func (u *RestockUseCase) applyDefaultsAndValidate(req *model.GenerateRestockPredictionRequest) (*time.Time, error) {
+	if req.ForecastDate == nil {
+		tomorrow := time.Now().AddDate(0, 0, 1)
+		req.ForecastDate = &tomorrow
+	}
 	if req.HistoryDays == 0 {
 		req.HistoryDays = defaultHistoryDays
-	}
-	if req.DaysAhead == 0 {
-		req.DaysAhead = defaultForecastWindowDays
 	}
 
 	if err := u.Validate.Struct(req); err != nil {
@@ -177,14 +178,9 @@ func (u *RestockUseCase) applyDefaultsAndValidate(req *model.GenerateRestockPred
 	if req.HistoryDays < defaultHistoryDays {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "history_days minimal 30 hari")
 	}
-	if req.DaysAhead < 1 {
-		return nil, fiber.NewError(fiber.StatusBadRequest, "days_ahead minimal 1 hari")
-	}
 
-	forecastDate := time.Now().AddDate(0, 0, 1)
-	return &forecastDate, nil
+	return req.ForecastDate, nil
 }
-
 func (u *RestockUseCase) resolveProducts(ctx context.Context, storeID string, productID string) ([]product_client.ProductDTO, error) {
 	if productID == "" {
 		products, err := u.ProductClient.ListByStoreID(ctx, storeID)
@@ -280,18 +276,7 @@ func maxInt(a int, b int) int {
 	return b
 }
 
-// daysUntilStockout estimates how many days current stock lasts at the
-// predicted daily sales rate. If predictedDailySales <= 0, treat as 0 days.
-func daysUntilStockout(currentStock int, predictedDailySales int) int {
-	if predictedDailySales <= 0 {
-		return 0
-	}
-	days := currentStock / predictedDailySales
-	if currentStock%predictedDailySales != 0 {
-		days++
-	}
-	return days
-}
+
 
 type productWithHistory struct {
 	Product product_client.ProductDTO

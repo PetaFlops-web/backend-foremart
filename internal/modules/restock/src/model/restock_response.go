@@ -1,13 +1,17 @@
 package model
 
 type RestockPredictionResponse struct {
-	ProductID    string `json:"product_id"`
-	ProductName  string `json:"product_name"`
-	CurrentStock int    `json:"current_stock"`
-	RestockQty   int    `json:"restock_qty"`
-	StockoutDate string `json:"stockout_date"`
+	ID                    string `json:"id"`
+	StoreID               string `json:"store_id"`
+	ProductID             string `json:"product_id"`
+	ProductName           string `json:"product_name"`
+	Unit                  string `json:"unit"`
+	ForecastDate          string `json:"forecast_date"`
+	DailySales            int    `json:"daily_sales"`
+	CurrentStock          int    `json:"current_stock"`
+	RecommendedRestockQty int    `json:"recommended_restock_qty"`
+	CreatedAt             int64  `json:"created_at"`
 }
-
 type GenerateRestockPredictionResponse struct {
 	GeneratedCount int                          `json:"generated_count"`
 	SkippedCount   int                          `json:"skipped_count"`
