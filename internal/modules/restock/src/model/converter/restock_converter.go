@@ -38,7 +38,7 @@ func RestockPredictionsToResponses(predictions []entity.RestockPrediction) []mod
 }
 
 func formatDate(date *time.Time) string {
-	if date.IsZero() {
+	if date == nil || date.IsZero() {
 		return ""
 	}
 	return date.Format("2006-01-02")
