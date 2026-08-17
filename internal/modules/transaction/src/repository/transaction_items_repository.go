@@ -102,7 +102,7 @@ func (r *TransactionItemRepository) GetDailySalesHistoryByProduct(db *gorm.DB, s
 
 	var rows []DailySalesByProduct
 	err = db.Model(&entity.TransactionItem{}).
-		Select("transactions.transaction_date AS sale_date, COALESCE(SUM(transaction_items.qty), 0) AS total_qty").
+		Select("DATE_FORMAT(transactions.transaction_date, '%Y-%m-%d') AS sale_date, COALESCE(SUM(transaction_items.qty), 0) AS total_qty").
 		Joins("JOIN transactions ON transaction_items.transaction_id = transactions.id").
 		Where("transactions.store_id = ? AND transaction_items.product_id = ? AND transactions.transaction_date >= ? AND transactions.transaction_date <= ?",
 			storeID, productID, start.Format("2006-01-02"), endDate).
