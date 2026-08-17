@@ -31,15 +31,15 @@ func (r *RestockRepository) UpsertByStoreProductDate(ctx context.Context, predic
 		Columns: []clause.Column{
 			{Name: "store_id"},
 			{Name: "product_id"},
-			{Name: "prediction_date"},
+			{Name: "forecast_date"},
 		},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"product_name",
-			"predicted_sales",
+			"predicted_daily_sales",
 			"current_stock",
 			"forecast_window_days",
-			"recommended_qty",
-			"predicted_restock_date",
+			"recommended_restock_qty",
+			"stockout_date",
 			"history_days",
 			"updated_at",
 		}),
@@ -49,15 +49,15 @@ func (r *RestockRepository) UpsertByStoreProductDate(ctx context.Context, predic
 	}
 
 	saved := new(entity.RestockPrediction)
-	if err := r.FindByStoreProductDate(ctx, saved, prediction.StoreID, prediction.ProductID, prediction.PredictionDate); err != nil {
+	if err := r.FindByStoreProductDate(ctx, saved, prediction.StoreID, prediction.ProductID, prediction.ForecastDate); err != nil {
 		return nil, err
 	}
 
 	return saved, nil
 }
 
-func (r *RestockRepository) FindByStoreProductDate(ctx context.Context, prediction *entity.RestockPrediction, storeID string, productID string, predictionDate *time.Time) error {
-	return r.dbWithContext(ctx).Where("store_id = ? AND product_id = ? AND prediction_date = ?", storeID, productID, predictionDate.Format("2006-01-02")).Take(prediction).Error
+func (r *RestockRepository) FindByStoreProductDate(ctx context.Context, prediction *entity.RestockPrediction, storeID string, productID string, forecastDate *time.Time) error {
+	return r.dbWithContext(ctx).Where("store_id = ? AND product_id = ? AND forecast_date = ?", storeID, productID, forecastDate.Format("2006-01-02")).Take(prediction).Error
 }
 
 func (r *RestockRepository) ListByStoreID(ctx context.Context, storeID string) ([]entity.RestockPrediction, error) {

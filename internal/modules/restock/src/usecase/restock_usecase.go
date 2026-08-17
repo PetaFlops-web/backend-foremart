@@ -74,6 +74,7 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 	}
 
 	endDate := forecastDate.AddDate(0, 0, -1).Format("2006-01-02")
+	
 	eligible := make([]productWithHistory, 0, len(products))
 	skipped := make([]model.RestockSkippedItemResponse, 0)
 
@@ -109,18 +110,20 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Gagal membuat ID prediksi restock")
 		}
 
+		stockoutDate := forecastDate.AddDate(0, 0, daysUntilStockout(product.Stock, predictedSales))
+
 		entityPrediction := &entity.RestockPrediction{
-			ID:                   predictionID,
-			StoreID:              req.StoreID,
-			ProductID:            product.ID,
-			ProductName:          product.ProductName,
-			PredictionDate:       forecastDate,
-			PredictedSales:       predictedSales,
-			CurrentStock:         product.Stock,
-			ForecastWindowDays:   req.ForecastWindowDays,
-			RecommendedQty:       recommendedQty,
-			PredictedRestockDate: forecastDate,
-			HistoryDays:          req.HistoryDays,
+			ID:                    predictionID,
+			StoreID:               req.StoreID,
+			ProductID:             product.ID,
+			ProductName:           product.ProductName,
+			ForecastDate:          forecastDate,
+			PredictedDailySales:   predictedSales,
+			CurrentStock:          product.Stock,
+			ForecastWindowDays:    req.ForecastWindowDays,
+			RecommendedRestockQty: recommendedQty,
+			StockoutDate:          &stockoutDate,
+			HistoryDays:           req.HistoryDays,
 		}
 
 		saved, err := u.Repo.UpsertByStoreProductDate(ctx, entityPrediction)
@@ -282,6 +285,19 @@ func maxInt(a int, b int) int {
 		return a
 	}
 	return b
+}
+
+// daysUntilStockout estimates how many days current stock lasts at the
+// predicted daily sales rate. If predictedDailySales <= 0, treat as 0 days.
+func daysUntilStockout(currentStock int, predictedDailySales int) int {
+	if predictedDailySales <= 0 {
+		return 0
+	}
+	days := currentStock / predictedDailySales
+	if currentStock%predictedDailySales != 0 {
+		days++
+	}
+	return days
 }
 
 type productWithHistory struct {

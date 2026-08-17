@@ -13,19 +13,19 @@ func RestockPredictionToResponse(prediction *entity.RestockPrediction) *model.Re
 	}
 
 	return &model.RestockPredictionResponse{
-		ID:                   prediction.ID,
-		StoreID:              prediction.StoreID,
-		ProductID:            prediction.ProductID,
-		ProductName:          prediction.ProductName,
-		PredictionDate:       formatDate(prediction.PredictionDate),
-		PredictedSales:       prediction.PredictedSales,
-		CurrentStock:         prediction.CurrentStock,
-		ForecastWindowDays:   prediction.ForecastWindowDays,
-		RecommendedQty:       prediction.RecommendedQty,
-		PredictedRestockDate: formatDate(prediction.PredictedRestockDate),
-		HistoryDays:          prediction.HistoryDays,
-		CreatedAt:            prediction.CreatedAt,
-		UpdatedAt:            prediction.UpdatedAt,
+		ID:                    prediction.ID,
+		StoreID:               prediction.StoreID,
+		ProductID:             prediction.ProductID,
+		ProductName:           prediction.ProductName,
+		ForecastDate:          formatDate(prediction.ForecastDate),
+		PredictedDailySales:   prediction.PredictedDailySales,
+		CurrentStock:          prediction.CurrentStock,
+		ForecastWindowDays:    prediction.ForecastWindowDays,
+		RecommendedRestockQty: prediction.RecommendedRestockQty,
+		StockoutDate:          formatDate(prediction.StockoutDate),
+		HistoryDays:           prediction.HistoryDays,
+		CreatedAt:             prediction.CreatedAt,
+		UpdatedAt:             prediction.UpdatedAt,
 	}
 }
 
