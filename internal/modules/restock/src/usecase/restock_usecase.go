@@ -83,7 +83,7 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 			u.Log.Errorf("Failed to get sales history for product %s: %+v", product.ID, err)
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Gagal mengambil histori penjualan")
 		}
-		if len(history) < req.HistoryDays {
+		if sumFloat(history) == 0 {
 			skipped = append(skipped, skippedItem(product, skipReasonInsufficientHistory))
 			continue
 		}
@@ -292,4 +292,12 @@ type productWithHistory struct {
 type productPrediction struct {
 	Product  product_client.ProductDTO
 	Response mlclient.InventoryPredictionResponse
+}
+
+func sumFloat(values []float64) float64 {
+	var total float64
+	for _, v := range values {
+		total += v
+	}
+	return total
 }
