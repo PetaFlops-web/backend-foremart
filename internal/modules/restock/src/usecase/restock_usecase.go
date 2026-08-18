@@ -21,9 +21,9 @@ import (
 const (
 	defaultHistoryDays = 30
 
-	skipReasonInsufficientHistory = "insufficient_history"
-	skipReasonMLError             = "ml_error"
-	skipReasonNoRestockNeeded     = "no_restock_needed"
+	skipReasonInsufficientHistory = "riwayat_tidak_cukup"
+	skipReasonMLError             = "kesalahan_ml"
+	skipReasonNoRestockNeeded     = "restock_tidak_diperlukan"
 )
 
 type RestockUseCase struct {
@@ -101,7 +101,7 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 		product := prediction.Product
 		predictedSales := maxInt(0, prediction.Response.PredictedSales)
 		neededStock := predictedSales * daysAhead
-		recommendedQty := maxInt(0, neededStock-product.Stock)
+		recommendedQty := maxInt(0, neededStock - product.Stock)
 		if recommendedQty == 0 {
 			skipped = append(skipped, skippedItem(product, skipReasonNoRestockNeeded))
 			continue
@@ -222,6 +222,7 @@ func (u *RestockUseCase) predictEligibleItems(ctx context.Context, req *model.Ge
 	}
 
 	batchRequest := mlclient.InventoryPredictionBatchRequest{Predictions: make([]mlclient.InventoryPredictionRequest, len(eligible))}
+
 	for i, item := range eligible {
 		batchRequest.Predictions[i] = mlclient.InventoryPredictionRequest{
 			Store:        req.StoreID,
@@ -237,7 +238,10 @@ func (u *RestockUseCase) predictEligibleItems(ctx context.Context, req *model.Ge
 		return u.predictEligibleItemsIndividually(ctx, req, forecastDate, eligible, skipped)
 	}
 
+	u.Log.Infof("Response ml: %+v", batchResponse)
+
 	responseByProductID := make(map[string]mlclient.InventoryPredictionResponse, len(batchResponse))
+
 	for _, response := range batchResponse {
 		responseByProductID[response.Item] = response
 	}
