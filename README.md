@@ -169,7 +169,8 @@ Contoh (prediksi seluruh produk toko):
 ```json
 {
   "store_id": "2ce7f883-4666-432f-aa65-ccd97e5c4686",
-  "forecast_date": "2026-09-10T00:00:00Z"
+  "forecast_date": "2026-09-10T00:00:00Z",
+  "history_days": 30
 }
 ```
 
