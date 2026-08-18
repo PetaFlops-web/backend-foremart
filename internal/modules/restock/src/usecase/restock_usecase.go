@@ -73,7 +73,7 @@ func (u *RestockUseCase) Generate(ctx context.Context, req *model.GenerateRestoc
 	}
 
 	endDate := forecastDate.AddDate(0, 0, -1).Format("2006-01-02")
-	daysAhead := int(time.Until(*forecastDate).Hours()/24) + 1
+	daysAhead := calendarDaysFromToday(*forecastDate)
 	if daysAhead < 1 {
 		daysAhead = 1
 	}
@@ -179,7 +179,20 @@ func (u *RestockUseCase) applyDefaultsAndValidate(req *model.GenerateRestockPred
 		return nil, fiber.NewError(fiber.StatusBadRequest, "history_days minimal 30 hari")
 	}
 
+	if calendarDaysFromToday(*req.ForecastDate) < 1 {
+		return nil, fiber.NewError(fiber.StatusBadRequest, "forecast_date harus tanggal besok atau setelahnya")
+	}
+
 	return req.ForecastDate, nil
+}
+
+// calendarDaysFromToday returns the number of calendar days from today
+// (inclusive of today as day 0) to the target date, ignoring clock time.
+func calendarDaysFromToday(date time.Time) int {
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	target := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	return int(target.Sub(today).Hours() / 24)
 }
 func (u *RestockUseCase) resolveProducts(ctx context.Context, storeID string, productID string) ([]product_client.ProductDTO, error) {
 	if productID == "" {
