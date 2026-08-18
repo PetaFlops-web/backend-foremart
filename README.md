@@ -141,12 +141,12 @@ Content-Type: application/json
 
 #### Request Body
 
-| Field           | Tipe             | Wajib    | Default | Keterangan                                                                    |
-| --------------- | ---------------- | -------- | ------- | ----------------------------------------------------------------------------- |
-| `store_id`      | string           | Required | —       | ID toko yang ingin diprediksi                                                 |
-| `product_id`    | string           | Nullable | —       | ID produk. Kosong = prediksi **seluruh** produk toko                          |
-| `forecast_date` | string (RFC3339) | Required | besok   | Tanggal target prediksi (`YYYY-MM-DDT00:00:00Z`). Harus besok atau setelahnya |
-| `history_days`  | int              | Required | 30      | Jumlah hari histori penjualan (minimal 30)                                    |
+| Field           | Tipe             | Wajib    | Default | Keterangan                                                                                  |
+| --------------- | ---------------- | -------- | ------- | ------------------------------------------------------------------------------------------- |
+| `store_id`      | string           | Required | —       | ID toko yang ingin diprediksi                                                               |
+| `product_id`    | string           | Nullable | —       | ID produk. Kosong = prediksi **seluruh** produk toko                                        |
+| `forecast_date` | string (RFC3339) | Required | besok   | Tanggal target yang ingin di prediksi (`YYYY-MM-DDT00:00:00Z`). Harus besok atau setelahnya |
+| `history_days`  | int              | Required | 30      | Jumlah hari histori penjualan (minimal 30)                                                  |
 
 > [!IMPORTANT]
 > **Penting:** Pastikan format date menggunakan RFC3339.
