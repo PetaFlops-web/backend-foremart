@@ -78,3 +78,53 @@ func (r *TransactionItemRepository) SumQtyByProductInMonth(db *gorm.DB, productI
 
 	return totalQty, err
 }
+
+// DailySalesByProduct is a row in the zero-filled daily-sales series.
+type DailySalesByProduct struct {
+	SaleDate string  `gorm:"column:sale_date"`
+	TotalQty float64 `gorm:"column:total_qty"`
+}
+
+// GetDailySalesHistoryByProduct returns a complete daily sales series for a
+// product in a store over the window [endDate - (historyDays-1) .. endDate],
+// ordered oldest → newest. Days with no sales are filled with 0 so the series
+// always has exactly historyDays entries (one per calendar day).
+func (r *TransactionItemRepository) GetDailySalesHistoryByProduct(db *gorm.DB, storeID string, productID string, historyDays int, endDate string) ([]DailySalesByProduct, error) {
+	parsedEnd, err := time.Parse("2006-01-02", endDate)
+	if err != nil {
+		return nil, err
+	}
+	if historyDays < 1 {
+		return nil, nil
+	}
+
+	start := parsedEnd.AddDate(0, 0, -(historyDays - 1))
+
+	var rows []DailySalesByProduct
+	err = db.Model(&entity.TransactionItem{}).
+		Select("DATE_FORMAT(transactions.transaction_date, '%Y-%m-%d') AS sale_date, COALESCE(SUM(transaction_items.qty), 0) AS total_qty").
+		Joins("JOIN transactions ON transaction_items.transaction_id = transactions.id").
+		Where("transactions.store_id = ? AND transaction_items.product_id = ? AND transactions.transaction_date >= ? AND transactions.transaction_date <= ?",
+			storeID, productID, start.Format("2006-01-02"), endDate).
+		Group("transactions.transaction_date").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	salesByDate := make(map[string]float64, len(rows))
+	for _, row := range rows {
+		salesByDate[row.SaleDate] = row.TotalQty
+	}
+
+	series := make([]DailySalesByProduct, 0, historyDays)
+	for i := 0; i < historyDays; i++ {
+		day := start.AddDate(0, 0, i).Format("2006-01-02")
+		series = append(series, DailySalesByProduct{
+			SaleDate: day,
+			TotalQty: salesByDate[day],
+		})
+	}
+
+	return series, nil
+}
