@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/auth"
+	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/report"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/restock"
@@ -45,7 +46,8 @@ func main() {
 	authModule := auth.New(db, log, validate, viperConfig)
 	storeModule := store.New(db, validate, log)
 	productModule := product.New(db, log, validate, viperConfig)
-	transactionModule := transaction.New(db, log, validate, viperConfig, productModule.Client())
+	customerModule := customer.New(db, log, validate)
+	transactionModule := transaction.New(db, log, validate, viperConfig, productModule.Client(), customerModule.Client())
 	reportModule := report.New(log, validate, transactionModule.Client(), productModule.Client(), storeModule.Client())
 	restockModule := restock.New(db, log, validate, viperConfig, storeModule.Client(), productModule.Client(), transactionModule.Client())
 	// Register all modules
@@ -53,6 +55,7 @@ func main() {
 		authModule,
 		storeModule,
 		productModule,
+		customerModule,
 		transactionModule,
 		reportModule,
 		restockModule,

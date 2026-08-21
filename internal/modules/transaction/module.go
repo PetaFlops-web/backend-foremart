@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	customer_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer-client"
 	product_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product-client"
 	transaction_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction-client"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction/src/controller"
@@ -26,6 +27,7 @@ func New(
 	validate *validator.Validate,
 	config *viper.Viper,
 	productClient product_client.Client,
+	customerClient customer_client.Client,
 ) *Module {
 	mlBaseURL := config.GetString("ML_SERVICE_URL")
 	if mlBaseURL == "" {
@@ -38,7 +40,7 @@ func New(
 	transactionItemRepo := repository.NewTransactionItemRepository(log)
 
 	transactionUseCase := usecase.NewTransactionUseCase(
-		db, log, validate, transactionRepo, transactionItemRepo, productClient, mlClient,
+		db, log, validate, transactionRepo, transactionItemRepo, productClient, mlClient, customerClient,
 	)
 
 	transactionController := controller.NewTransactionController(transactionUseCase, log)

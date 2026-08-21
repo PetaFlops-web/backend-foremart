@@ -26,10 +26,13 @@ type TransactionPreviewResponse struct {
 
 // TransactionResponse is returned after a transaction is confirmed/saved.
 type TransactionResponse struct {
-	ID              string                        `json:"id"`
-	StoreID         string                        `json:"store_id"`
-	TransactionDate string                        `json:"transaction_date"`
-	Source          string                        `json:"source"`
-	CreatedAt       int64                         `json:"created_at"`
-	Items           []TransactionItemResponse     `json:"items,omitempty"`
+	ID              string                    `json:"id"`
+	StoreID         string                    `json:"store_id"`
+	CustomerID      string                    `json:"customer_id"`
+	CustomerPhone   string                    `json:"customer_phone"`
+	CustomerName    string                    `json:"customer_name"`
+	TransactionDate string                    `json:"transaction_date"`
+	Source          string                    `json:"source"`
+	CreatedAt       int64                     `json:"created_at"`
+	Items           []TransactionItemResponse `json:"items,omitempty"`
 }
