@@ -9,9 +9,10 @@ type ExtractVoiceRequest struct {
 
 // CreateTransactionRequest is used when the user confirms a transaction after preview.
 type CreateTransactionRequest struct {
-	StoreId string                   `json:"store_id" validate:"required"`
-	Source  string                   `json:"source" validate:"required"`
-	Items   []TransactionItemRequest `json:"items" validate:"required,dive"`
+	StoreId    string                   `json:"store_id" validate:"required"`
+	Source     string                   `json:"source" validate:"required"`
+	CustomerID string                   `json:"customer_id" validate:"required"`
+	Items      []TransactionItemRequest `json:"items" validate:"required,dive"`
 }
 
 // SearchTransactionRequest is used for listing/paginating transactions.
