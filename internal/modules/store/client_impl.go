@@ -32,6 +32,19 @@ func (c *clientImpl) GetStoreByUserID(ctx context.Context, userID string) (*stor
 	return mapToDTO(store), nil
 }
 
+func (c *clientImpl) ListStores(ctx context.Context) ([]store_client.StoreDTO, error) {
+	stores, err := c.repo.ListAll(c.db.WithContext(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	dtos := make([]store_client.StoreDTO, len(stores))
+	for i, s := range stores {
+		dtos[i] = *mapToDTO(&s)
+	}
+	return dtos, nil
+}
+
 func mapToDTO(store *entity.Store) *store_client.StoreDTO {
 	return &store_client.StoreDTO{
 		ID:        store.ID,
