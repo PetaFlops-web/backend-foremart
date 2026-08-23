@@ -1,5 +1,5 @@
 CREATE TABLE customers (
-    id VARCHAR(36) PRIMARY KEY,
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL DEFAULT '',
     phone VARCHAR(20) NOT NULL,
     created_by_store_id VARCHAR(36) NOT NULL,

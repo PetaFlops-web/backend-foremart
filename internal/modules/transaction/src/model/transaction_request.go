@@ -11,7 +11,7 @@ type ExtractVoiceRequest struct {
 type CreateTransactionRequest struct {
 	StoreId    string                   `json:"store_id" validate:"required"`
 	Source     string                   `json:"source" validate:"required"`
-	CustomerID string                   `json:"customer_id" validate:"required"`
+	CustomerID int                      `json:"customer_id" validate:"required"`
 	Items      []TransactionItemRequest `json:"items" validate:"required,dive"`
 }
 

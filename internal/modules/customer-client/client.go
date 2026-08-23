@@ -3,7 +3,7 @@ package customer_client
 import "context"
 
 type CustomerDTO struct {
-	ID               string
+	ID               int
 	Name             string
 	Phone            string
 	CreatedByStoreID string
@@ -12,6 +12,7 @@ type CustomerDTO struct {
 }
 
 type Client interface {
-	GetByID(ctx context.Context, id string) (*CustomerDTO, error)
+	GetByID(ctx context.Context, id int) (*CustomerDTO, error)
 	FindByPhone(ctx context.Context, phone string) (*CustomerDTO, error)
+	ListByStoreID(ctx context.Context, storeID string) ([]CustomerDTO, error)
 }

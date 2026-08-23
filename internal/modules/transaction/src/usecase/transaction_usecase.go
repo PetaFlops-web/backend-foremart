@@ -135,7 +135,7 @@ func (u *TransactionUseCase) Create(ctx context.Context, req *model.CreateTransa
 	// Validate customer via customer-client
 	customer, err := u.CustomerClient.GetByID(ctx, req.CustomerID)
 	if err != nil {
-		u.Log.Warnf("Customer %s not found: %v", req.CustomerID, err)
+		u.Log.Warnf("Customer %d not found: %v", req.CustomerID, err)
 		return nil, fiber.NewError(fiber.StatusNotFound, "Customer tidak ditemukan")
 	}
 
