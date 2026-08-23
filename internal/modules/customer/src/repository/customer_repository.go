@@ -43,6 +43,17 @@ func (r *CustomerRepository) SearchScoped(db *gorm.DB, request *model.SearchCust
 	return customers, total, nil
 }
 
+func (r *CustomerRepository) ListByStoreID(db *gorm.DB, storeID string) ([]entity.Customer, error) {
+	var customers []entity.Customer
+	storeScope := func(tx *gorm.DB) *gorm.DB {
+		return tx.Where("(created_by_store_id = ? OR id IN (SELECT DISTINCT customer_id FROM transactions WHERE store_id = ? AND customer_id IS NOT NULL))", storeID, storeID)
+	}
+	if err := db.Scopes(storeScope).Find(&customers).Error; err != nil {
+		return nil, err
+	}
+	return customers, nil
+}
+
 func (r *CustomerRepository) FilterCustomer(request *model.SearchCustomerRequest) func(tx *gorm.DB) *gorm.DB {
 	return func(tx *gorm.DB) *gorm.DB {
 		if request.Search != "" {
