@@ -8,7 +8,6 @@ import (
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer/src/model"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer/src/model/converter"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer/src/repository"
-	"github.com/PetaFlops-web/backend-shop-smbk/internal/shared/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
@@ -59,14 +58,7 @@ func (u *CustomerUseCase) Create(ctx context.Context, request *model.CreateCusto
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Gagal menyimpan customer")
 	}
 
-	customerID, err := utils.GenerateCustomerId()
-	if err != nil {
-		u.Log.Warnf("Failed to generate customer id : %+v", err)
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Gagal membuat ID customer")
-	}
-
 	customer := &entity.Customer{
-		ID:               customerID,
 		Name:             request.Name,
 		Phone:            request.Phone,
 		CreatedByStoreID: request.StoreID,
@@ -85,7 +77,7 @@ func (u *CustomerUseCase) Create(ctx context.Context, request *model.CreateCusto
 	return converter.CustomerToResponse(customer), nil
 }
 
-func (u *CustomerUseCase) Get(ctx context.Context, storeId string, id string) (*model.CustomerResponse, error) {
+func (u *CustomerUseCase) Get(ctx context.Context, storeId string, id int) (*model.CustomerResponse, error) {
 	tx := u.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 

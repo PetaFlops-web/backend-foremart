@@ -13,6 +13,8 @@ require (
 	gorm.io/gorm v1.31.2
 )
 
+require github.com/robfig/cron/v3 v3.0.1 // indirect
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect

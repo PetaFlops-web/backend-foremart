@@ -69,6 +69,32 @@ func (c *clientImpl) GetDailySalesHistoryByProduct(ctx context.Context, storeID 
 	return history, nil
 }
 
+func (c *clientImpl) ListPurchasesByCustomerProduct(ctx context.Context, storeID string, customerID int, productID string) ([]transaction_client.CustomerProductPurchaseDTO, error) {
+	rows, err := c.transactionItemRepo.ListPurchasesByCustomerProduct(c.db.WithContext(ctx), storeID, customerID, productID)
+	if err != nil {
+		return nil, err
+	}
+
+	dtos := make([]transaction_client.CustomerProductPurchaseDTO, len(rows))
+	for i, row := range rows {
+		dtos[i] = transaction_client.CustomerProductPurchaseDTO{
+			TransactionID:        row.TransactionID,
+			TransactionDate:      row.TransactionDate,
+			Qty:                  row.Qty,
+			SellingPriceSnapshot: row.SellingPriceSnapshot,
+		}
+	}
+	return dtos, nil
+}
+
+func (c *clientImpl) ListItemsByTransaction(ctx context.Context, transactionID string) ([]transaction_client.TransactionItemDTO, error) {
+	items, err := c.transactionItemRepo.FindByTransactionId(c.db.WithContext(ctx), transactionID)
+	if err != nil {
+		return nil, err
+	}
+	return mapItemsToDTO(items), nil
+}
+
 func mapItemsToDTO(items []entity.TransactionItem) []transaction_client.TransactionItemDTO {
 	dtos := make([]transaction_client.TransactionItemDTO, len(items))
 	for i, item := range items {

@@ -1,7 +1,7 @@
 package model
 
 type CustomerResponse struct {
-	ID               string `json:"id"`
+	ID               int    `json:"id"`
 	Name             string `json:"name"`
 	Phone            string `json:"phone"`
 	CreatedByStoreID string `json:"created_by_store_id"`

@@ -24,4 +24,10 @@ func (r *StoreRepository) FindByUserID(db *gorm.DB, store *entity.Store, userID 
 	return db.Where("user_id = ?", userID).Take(store).Error
 }
 
-
+func (r *StoreRepository) ListAll(db *gorm.DB) ([]entity.Store, error) {
+	var stores []entity.Store
+	if err := db.Find(&stores).Error; err != nil {
+		return nil, err
+	}
+	return stores, nil
+}

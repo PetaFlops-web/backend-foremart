@@ -13,4 +13,5 @@ type StoreDTO struct {
 type StoreClient interface {
 	GetStoreByID(ctx context.Context, storeID string) (*StoreDTO, error)
 	GetStoreByUserID(ctx context.Context, userID string) (*StoreDTO, error)
+	ListStores(ctx context.Context) ([]StoreDTO, error)
 }
