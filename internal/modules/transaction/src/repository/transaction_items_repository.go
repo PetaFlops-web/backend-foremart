@@ -50,6 +50,29 @@ func (r *TransactionItemRepository) ListItemsByStoreAndDate(db *gorm.DB, storeId
 	return items, err
 }
 
+// CustomerProductPurchase is a single purchase of a specific product by a
+// specific customer, joined with its transaction date. Used by the Survival
+// module to build ML features.
+type CustomerProductPurchase struct {
+	TransactionID        string    `gorm:"column:transaction_id"`
+	TransactionDate      time.Time `gorm:"column:transaction_date"`
+	Qty                  int       `gorm:"column:qty"`
+	SellingPriceSnapshot int64     `gorm:"column:selling_price_snapshot"`
+}
+
+// ListPurchasesByCustomerProduct returns every purchase of a product by a
+// customer in a store, ordered oldest → newest.
+func (r *TransactionItemRepository) ListPurchasesByCustomerProduct(db *gorm.DB, storeID string, customerID int, productID string) ([]CustomerProductPurchase, error) {
+	var rows []CustomerProductPurchase
+	err := db.Table("transaction_items").
+		Select("transaction_items.transaction_id, transactions.transaction_date, transaction_items.qty, transaction_items.selling_price_snapshot").
+		Joins("JOIN transactions ON transaction_items.transaction_id = transactions.id").
+		Where("transactions.store_id = ? AND transactions.customer_id = ? AND transaction_items.product_id = ?", storeID, customerID, productID).
+		Order("transactions.transaction_date ASC, transaction_items.transaction_id ASC").
+		Find(&rows).Error
+	return rows, err
+}
+
 // ListItemsByProduct mengambil histori penjualan sebuah produk spesifik dalam jangka waktu N hari ke belakang
 // Digunakan oleh modul Restock
 func (r *TransactionItemRepository) ListItemsByProduct(db *gorm.DB, productId string, lookbackDays int) ([]entity.TransactionItem, error) {
