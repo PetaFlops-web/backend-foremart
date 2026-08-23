@@ -3,12 +3,15 @@ package main
 import (
 	"fmt"
 
+	"github.com/PetaFlops-web/backend-shop-smbk/internal/jobs"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/auth"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer"
+	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/notification"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/report"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/restock"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/store"
+	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/survival"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/shared/config"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/shared/middleware"
@@ -50,6 +53,8 @@ func main() {
 	transactionModule := transaction.New(db, log, validate, viperConfig, productModule.Client(), customerModule.Client())
 	reportModule := report.New(log, validate, transactionModule.Client(), productModule.Client(), storeModule.Client())
 	restockModule := restock.New(db, log, validate, viperConfig, storeModule.Client(), productModule.Client(), transactionModule.Client())
+	survivalModule := survival.New(log, validate, viperConfig, productModule.Client(), transactionModule.Client())
+	notificationModule := notification.New(db, log, viperConfig, storeModule.Client(), customerModule.Client(), productModule.Client(), transactionModule.Client(), survivalModule.Client())
 	// Register all modules
 	modules := []module.Module{
 		authModule,
@@ -59,6 +64,8 @@ func main() {
 		transactionModule,
 		reportModule,
 		restockModule,
+		survivalModule,
+		notificationModule,
 	}
 
 	// Auto-migration (each module migrates its own tables)
@@ -74,6 +81,13 @@ func main() {
 		m.RegisterRoutes(api, authMiddleware)
 	}
 
+	// Start reorder-reminder scheduler (nightly WhatsApp notifications)
+	scheduler, err := jobs.StartReorderReminderScheduler(log, notificationModule.UseCase, viperConfig.GetString("notification.schedule"))
+	if err != nil {
+		log.Fatalf("Failed to start scheduler: %v", err)
+	}
+	defer scheduler.Stop()
+
 	// Start server
 	port := viperConfig.GetInt("web.port")
 	if port == 0 {
@@ -82,8 +96,9 @@ func main() {
 
 	log.Infof("Server is starting on port :%d", port)
 
-	err := app.Listen(fmt.Sprintf(":%d", port))
+	err = app.Listen(fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
+
 }

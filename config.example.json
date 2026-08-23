@@ -28,6 +28,13 @@
   "jwt": {
     "secret": "your_jwt_secret_key"
   },
+  "fonnte": {
+    "token": "",
+    "target": ""
+  },
+  "notification": {
+    "schedule": "0 8 * * *"
+  },
   "group": {
     "id": "your_group_id"
   }
