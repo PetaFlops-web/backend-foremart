@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "smart_commerce"
+  },
+  "web": {
+    "prefork": false,
+    "port": 8080,
+    "cors": {
+      "allow_origins": "http://localhost:3080,http://localhost:5173,http://127.0.0.1:3080,http://127.0.0.1:5173"
+    }
+  },
+  "ml_service_url": "http://ml-service:8000",
+  "log": {
+    "level": 4
+  },
+  "database": {
+    "username": "smbk_user",
+    "password": "smbk_password",
+    "host": "aic_mysql",
+    "port": 3306,
+    "name": "smart_commerce",
+    "pool": {
+      "idle": 10,
+      "max": 100,
+      "lifetime": 300
+    }
+  },
+  "jwt": {
+    "secret": "supersecretjwtkey_change_me"
+  },
+  "group": {
+    "id": "smbk_group"
+  }
+}
