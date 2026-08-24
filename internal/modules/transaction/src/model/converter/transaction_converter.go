@@ -15,6 +15,9 @@ func TransactionToResponse(txn *entity.Transaction) *model.TransactionResponse {
 	return &model.TransactionResponse{
 		ID:              txn.ID,
 		StoreID:         txn.StoreID,
+		CustomerID:      txn.CustomerID,
+		CustomerPhone:   txn.CustomerPhone,
+		CustomerName:    txn.CustomerName,
 		TransactionDate: txn.TransactionDate.Format("2006-01-02"),
 		Source:          txn.Source,
 		CreatedAt:       txn.CreatedAt,

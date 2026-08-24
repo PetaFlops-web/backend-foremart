@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	customer_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer-client"
 	product_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product-client"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction/src/entity"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction/src/model"
@@ -25,6 +26,7 @@ type TransactionUseCase struct {
 	TransactionItemRepo     *repository.TransactionItemRepository
 	ProductClient           product_client.Client
 	MLClient                mlclient.MLClient
+	CustomerClient          customer_client.Client
 }
 
 func NewTransactionUseCase(
@@ -35,6 +37,7 @@ func NewTransactionUseCase(
 	transactionItemRepo *repository.TransactionItemRepository,
 	productClient product_client.Client,
 	mlClient mlclient.MLClient,
+	customerClient customer_client.Client,
 ) *TransactionUseCase {
 	return &TransactionUseCase{
 		DB:                  db,
@@ -44,6 +47,7 @@ func NewTransactionUseCase(
 		TransactionItemRepo: transactionItemRepo,
 		ProductClient:       productClient,
 		MLClient:            mlClient,
+		CustomerClient:      customerClient,
 	}
 }
 
@@ -128,9 +132,19 @@ func (u *TransactionUseCase) Create(ctx context.Context, req *model.CreateTransa
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Gagal membuat ID Transaksi")
 	}
 
+	// Validate customer via customer-client
+	customer, err := u.CustomerClient.GetByID(ctx, req.CustomerID)
+	if err != nil {
+		u.Log.Warnf("Customer %d not found: %v", req.CustomerID, err)
+		return nil, fiber.NewError(fiber.StatusNotFound, "Customer tidak ditemukan")
+	}
+
 	txn := &entity.Transaction{
 		ID:              txnID,
 		StoreID:         req.StoreId,
+		CustomerID:      req.CustomerID,
+		CustomerPhone:   customer.Phone,
+		CustomerName:    customer.Name,
 		TransactionDate: time.Now(),
 		Source:          req.Source,
 	}

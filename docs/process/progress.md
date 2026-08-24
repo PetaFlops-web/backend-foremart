@@ -158,13 +158,24 @@
 - [ ] Cron job `promotion_job.go` — nightly rule check — SDD §9.5, §13, FR-23
 - [ ] Wiring: module.go, route.go, register di main.go — SDD §2.5
 
+### 9.5 Notification Module (Reorder Reminder — ad-hoc, owner request)
+
+> Task ad-hoc (belum ada FR-ID di PRD/SDD). Menggantikan arah `promotion` FR-23–FR-25: notifikasi pengingat pembelian ulang + promo berbasis histori customer, dikirim via WhatsApp (Fonnte).
+
+- [x] Entity `NotificationLog` + SQL migration `create_table_notification_logs` — ad-hoc
+- [x] Repository `NotificationRepository` (dedup per customer-product-period) — ad-hoc
+- [x] Usecase `NotificationUseCase` — iterasi customer×product, prediksi survival, rule promo (≥3x=20%, ≥5x=30%), kirim WA, log — ad-hoc
+- [x] Endpoint `GET /api/notifications?store_id=` — list notification logs — ad-hoc
+- [x] Notifier interface + implementasi Fonnte + fallback log-only (`internal/pkg/notifier`) — ad-hoc
+- [x] Cron job `reorder_reminder_job.go` (robfig/cron, default `0 8 * * *`) — ad-hoc
+- [x] Wiring: module.go, route.go, register di main.go — SDD §2.5
+- [x] Config: blok `fonnte` + `notification.schedule` di config.json — ad-hoc
+
 ---
 
 ### 10. Cron / Scheduler Infrastructure
 
-- [ ] Setup scheduler (`robfig/cron`) di main.go — SDD §13
-- [ ] Wire `restock_job` + `promotion_job` ke scheduler — SDD §13
-
----
+- [x] Setup scheduler (`robfig/cron/v3`) di main.go — SDD §13
+- [x] Wire `reorder_reminder_job` ke scheduler — SDD §13, ad-hoc (replaces promotion_job)
 
 _Terakhir diperbarui: 13 Juli 2026._
