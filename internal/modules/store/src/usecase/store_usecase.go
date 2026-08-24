@@ -77,6 +77,16 @@ func (u *StoreUseCase) Get(ctx context.Context, userID string, storeID string) (
 	return converter.StoreToResponse(store), nil
 }
 
+func (u *StoreUseCase) GetByUserID(ctx context.Context, userID string) (*model.StoreResponse, error) {
+	tx := u.DB.WithContext(ctx)
+	store := new(entity.Store)
+	if err := u.StoreRepo.FindByUserID(tx, store, userID); err != nil {
+		u.Log.Warnf("Failed to find store by user ID: %+v", err)
+		return nil, fiber.NewError(fiber.StatusNotFound, "User belum memiliki toko")
+	}
+	return converter.StoreToResponse(store), nil
+}
+
 func (u *StoreUseCase) Update(ctx context.Context, request *model.StoreRequest) (*model.StoreResponse, error) {
 	tx := u.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()

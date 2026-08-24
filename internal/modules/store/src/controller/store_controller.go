@@ -58,6 +58,30 @@ func (c *StoreController) Create(ctx *fiber.Ctx) error {
 	})
 }
 
+// GetByUserID godoc
+// @Summary      Get my store
+// @Description  Returns the store of the currently authenticated user
+// @Tags         Store
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  response.WebResponse[model.StoreResponse]
+// @Failure      401  {object}  response.ApiErrorResponse
+// @Failure      404  {object}  response.ApiErrorResponse
+// @Router       /stores/me [get]
+func (c *StoreController) GetByUserID(ctx *fiber.Ctx) error {
+	auth := middleware.GetUser(ctx)
+	resp, err := c.UseCase.GetByUserID(ctx.UserContext(), auth.ID)
+	if err != nil {
+		c.Log.WithError(err).Error("error getting store by user ID")
+		return err
+	}
+	return ctx.JSON(response.WebResponse[*model.StoreResponse]{
+		Data:    resp,
+		Message: "Berhasil mendapatkan store",
+		Success: true,
+	})
+}
+
 // GetMyStore godoc
 // @Summary      Get
 // @Description  Returns the store of the currently authenticated user
