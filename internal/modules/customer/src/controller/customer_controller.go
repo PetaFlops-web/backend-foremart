@@ -68,8 +68,8 @@ func (c *CustomerController) Create(ctx *fiber.Ctx) error {
 // @Failure      404      {object}  response.ApiErrorResponse
 // @Router       /customers/{id} [get]
 func (c *CustomerController) Get(ctx *fiber.Ctx) error {
-	id, err := ctx.ParamsInt("id")
-	if err != nil {
+	id := ctx.Params("id")
+	if id == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "Customer ID tidak valid")
 	}
 	storeID := ctx.Query("store_id", "")

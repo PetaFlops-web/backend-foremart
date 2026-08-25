@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction/src/model"
@@ -208,6 +209,38 @@ func (c *TransactionController) List(ctx *fiber.Ctx) error {
 		Data:    responses,
 		Paging:  paging,
 		Message: "Berhasil menampilkan riwayat transaksi",
+		Success: true,
+	})
+}
+
+// SeedMock godoc
+// @Summary      Buat data mock untuk uji coba ML pipeline
+// @Description  Helper development: membuat histori penjualan/kebeli yang sudah lewat waktu agar prediksi restock dan notifikasi bisa jalan. Dua mode: "restock" untuk backfill ~35 hari, atau "survival" untuk trigger reminder threshold. Hanyah di dev/demo; jangan dipakai production.
+// @Tags         Transaction
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body  body      model.SeedMockRequest  true  "Data mock"
+// @Success      200   {object}  response.WebResponse[model.SeedMockResponse]
+// @Failure      400   {object} response.ApiErrorResponse
+// @Failure      500   {object} response.ApiErrorResponse
+// @Router       /transactions/_seed/mock [post]
+func (c *TransactionController) SeedMock(ctx *fiber.Ctx) error {
+	request := new(model.SeedMockRequest)
+	if err := ctx.BodyParser(request); err != nil {
+		c.Log.Warnf("Failed to parse mock seed request : %+v", err)
+		return fiber.NewError(fiber.StatusBadRequest, "Format data request tidak valid")
+	}
+
+	resp, err := c.UseCase.SeedMock(ctx.UserContext(), request)
+	if err != nil {
+		c.Log.Warnf("Failed to run mock seed : %+v", err)
+		return err
+	}
+
+	return ctx.JSON(response.WebResponse[*model.SeedMockResponse]{
+		Data:    resp,
+		Message: fmt.Sprintf("Buat mock sukses: %d transaksi | produk: %d | pelanggan: %d", resp.TransactionsCreated, resp.ProductsAffected, resp.CustomersAffected),
 		Success: true,
 	})
 }

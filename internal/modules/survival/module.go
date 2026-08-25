@@ -2,6 +2,7 @@ package survival
 
 import (
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product-client"
+	customer_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer-client"
 	survival_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/survival-client"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/survival/src/controller"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/survival/src/usecase"
@@ -22,14 +23,15 @@ func New(
 	validate *validator.Validate,
 	config *viper.Viper,
 	productClient product_client.Client,
+	customerClient customer_client.Client,
 	transactionClient transaction_client.Client,
 ) *Module {
-	mlBaseURL := config.GetString("ML_SERVICE_URL")
-	if mlBaseURL == "" {
-		mlBaseURL = "http://127.0.0.1:8000"
+	baseURL := config.GetString("ML_SERVICE_URL")
+	if baseURL == "" {
+		baseURL = "http://host.docker.internal:8000" // ML service endpoint for local dev
 	}
 
-	survivalUseCase := usecase.NewSurvivalUseCase(log, validate, productClient, transactionClient, mlclient.NewMLClient(mlBaseURL))
+	survivalUseCase := usecase.NewSurvivalUseCase(log, validate, productClient, customerClient, transactionClient, mlclient.NewMLClient(baseURL))
 	survivalController := controller.NewSurvivalController(survivalUseCase, log)
 
 	return &Module{

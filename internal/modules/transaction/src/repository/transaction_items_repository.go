@@ -62,7 +62,7 @@ type CustomerProductPurchase struct {
 
 // ListPurchasesByCustomerProduct returns every purchase of a product by a
 // customer in a store, ordered oldest → newest.
-func (r *TransactionItemRepository) ListPurchasesByCustomerProduct(db *gorm.DB, storeID string, customerID int, productID string) ([]CustomerProductPurchase, error) {
+func (r *TransactionItemRepository) ListPurchasesByCustomerProduct(db *gorm.DB, storeID string, customerID string, productID string) ([]CustomerProductPurchase, error) {
 	var rows []CustomerProductPurchase
 	err := db.Table("transaction_items").
 		Select("transaction_items.transaction_id, transactions.transaction_date, transaction_items.qty, transaction_items.selling_price_snapshot").

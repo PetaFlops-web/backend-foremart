@@ -18,7 +18,7 @@ func NewNotificationRepository(log *logrus.Logger) *NotificationRepository {
 
 // ExistsForPeriod reports whether a log already exists for the
 // (customer_id, product_id, period) dedup key.
-func (r *NotificationRepository) ExistsForPeriod(db *gorm.DB, customerID int, productID string, period string) (bool, error) {
+func (r *NotificationRepository) ExistsForPeriod(db *gorm.DB, customerID string, productID string, period string) (bool, error) {
 	var total int64
 	err := db.Model(&entity.NotificationLog{}).
 		Where("customer_id = ? AND product_id = ? AND period = ?", customerID, productID, period).

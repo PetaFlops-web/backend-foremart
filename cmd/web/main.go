@@ -53,7 +53,7 @@ func main() {
 	transactionModule := transaction.New(db, log, validate, viperConfig, productModule.Client(), customerModule.Client())
 	reportModule := report.New(log, validate, transactionModule.Client(), productModule.Client(), storeModule.Client())
 	restockModule := restock.New(db, log, validate, viperConfig, storeModule.Client(), productModule.Client(), transactionModule.Client())
-	survivalModule := survival.New(log, validate, viperConfig, productModule.Client(), transactionModule.Client())
+	survivalModule := survival.New(log, validate, viperConfig, productModule.Client(), customerModule.Client(), transactionModule.Client())
 	notificationModule := notification.New(db, log, viperConfig, storeModule.Client(), customerModule.Client(), productModule.Client(), transactionModule.Client(), survivalModule.Client())
 	// Register all modules
 	modules := []module.Module{

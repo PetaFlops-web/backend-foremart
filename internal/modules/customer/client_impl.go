@@ -14,7 +14,7 @@ type clientImpl struct {
 	customerRepo *repository.CustomerRepository
 }
 
-func (c *clientImpl) GetByID(ctx context.Context, id int) (*customer_client.CustomerDTO, error) {
+func (c *clientImpl) GetByID(ctx context.Context, id string) (*customer_client.CustomerDTO, error) {
 	cust := new(entity.Customer)
 	if err := c.customerRepo.FindById(c.db.WithContext(ctx), cust, id); err != nil {
 		return nil, err
@@ -46,6 +46,7 @@ func (c *clientImpl) ListByStoreID(ctx context.Context, storeID string) ([]custo
 func mapToDTO(c *entity.Customer) *customer_client.CustomerDTO {
 	return &customer_client.CustomerDTO{
 		ID:               c.ID,
+		NumericID:        c.NumericID,
 		Name:             c.Name,
 		Phone:            c.Phone,
 		CreatedByStoreID: c.CreatedByStoreID,

@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product-client"
+	customer_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer-client"
+	product_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/product-client"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/survival/src/model"
 	transaction_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/transaction-client"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/pkg/mlclient"
@@ -17,6 +18,7 @@ type SurvivalUseCase struct {
 	Log               *logrus.Logger
 	Validate          *validator.Validate
 	ProductClient     product_client.Client
+	CustomerClient    customer_client.Client
 	TransactionClient transaction_client.Client
 	MLClient          mlclient.MLClient
 }
@@ -25,6 +27,7 @@ func NewSurvivalUseCase(
 	log *logrus.Logger,
 	validate *validator.Validate,
 	productClient product_client.Client,
+	customerClient customer_client.Client,
 	transactionClient transaction_client.Client,
 	mlClient mlclient.MLClient,
 ) *SurvivalUseCase {
@@ -32,6 +35,7 @@ func NewSurvivalUseCase(
 		Log:               log,
 		Validate:          validate,
 		ProductClient:     productClient,
+		CustomerClient:    customerClient,
 		TransactionClient: transactionClient,
 		MLClient:          mlClient,
 	}
@@ -50,6 +54,12 @@ func (u *SurvivalUseCase) Predict(ctx context.Context, req *model.SurvivalPredic
 	}
 	if product.StoreID != req.StoreID {
 		return nil, fiber.NewError(fiber.StatusForbidden, "Produk tidak termasuk dalam toko Anda")
+	}
+
+	customer, err := u.CustomerClient.GetByID(ctx, req.CustomerID)
+	if err != nil {
+		u.Log.Warnf("Customer %s not found: %+v", req.CustomerID, err)
+		return nil, fiber.NewError(fiber.StatusNotFound, "Customer tidak ditemukan")
 	}
 
 	purchases, err := u.TransactionClient.ListPurchasesByCustomerProduct(ctx, req.StoreID, req.CustomerID, req.ProductID)
@@ -106,8 +116,9 @@ func (u *SurvivalUseCase) Predict(ctx context.Context, req *model.SurvivalPredic
 	}
 	basketUnique := len(uniqueProductIDs)
 
+	// ML service expects an integer customer_id; use the numeric surrogate key.
 	mlReq := mlclient.SurvivalPredictionRequest{
-		CustomerID:       req.CustomerID,
+		CustomerID:       customer.NumericID,
 		StockCode:        product.ProductName,
 		Quantity:         quantity,
 		UnitPrice:        unitPrice,
@@ -130,7 +141,7 @@ func (u *SurvivalUseCase) Predict(ctx context.Context, req *model.SurvivalPredic
 	}
 
 	return &model.SurvivalPredictionResponse{
-		CustomerID:             mlResp.CustomerID,
+		CustomerID:             req.CustomerID,
 		StockCode:              mlResp.StockCode,
 		PurchaseNumber:         purchaseNumber,
 		PredictedRestockDate:   mlResp.PredictedRestockDate,

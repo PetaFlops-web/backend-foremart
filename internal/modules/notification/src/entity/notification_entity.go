@@ -3,7 +3,7 @@ package entity
 type NotificationLog struct {
 	ID                   string `gorm:"column:id;primaryKey;type:varchar(36)"`
 	StoreID              string `gorm:"column:store_id;type:varchar(36);not null;index:idx_notification_logs_store"`
-	CustomerID           int    `gorm:"column:customer_id;type:int;not null;index:idx_notification_logs_customer;uniqueIndex:uq_notification_logs_dedup,priority:1"`
+	CustomerID           string `gorm:"column:customer_id;type:varchar(36);not null;index:idx_notification_logs_customer;uniqueIndex:uq_notification_logs_dedup,priority:1"`
 	ProductID            string `gorm:"column:product_id;type:varchar(36);not null;index:idx_notification_logs_product;uniqueIndex:uq_notification_logs_dedup,priority:2"`
 	Channel              string `gorm:"column:channel;type:varchar(20);not null;default:'whatsapp'"`
 	Message              string `gorm:"column:message;type:text;not null"`

@@ -15,4 +15,7 @@ func (m *Module) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handle
 	transactions.Get("/", m.Controller.List)
 	transactions.Get("/:id", m.Controller.Get)
 	transactions.Delete("/:id", m.Controller.Delete)
+
+	// Mock seed (dev/demo helper)
+	transactions.Post("/_seed/mock", m.Controller.SeedMock)
 }

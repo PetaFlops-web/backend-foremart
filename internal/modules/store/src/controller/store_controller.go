@@ -51,6 +51,8 @@ func (c *StoreController) Create(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	c.Log.Infof("Store created successfully with ID: %s, User: %s", resp.ID, resp.UserID)
+
 	return ctx.JSON(response.WebResponse[*model.StoreResponse]{
 		Data:    resp,
 		Message: "Berhasil menambahkan store",

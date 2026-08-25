@@ -1,7 +1,7 @@
 package model
 
 type SurvivalPredictionResponse struct {
-	CustomerID             int     `json:"customer_id"`
+	CustomerID             string  `json:"customer_id"`
 	PurchaseNumber         int     `json:"purchase_number"`
 	StockCode              string  `json:"stock_code"`
 	PredictedRestockDate   string  `json:"predicted_restock_date"`

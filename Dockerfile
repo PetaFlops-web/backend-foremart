@@ -12,6 +12,7 @@ WORKDIR /app
 RUN apk --no-cache add ca-certificates tzdata wget
 
 COPY --from=builder /app/server .
+COPY config.production.json /app/config.json
 
 ENV PORT=8080
 EXPOSE ${PORT}

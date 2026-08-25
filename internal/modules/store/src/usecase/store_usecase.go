@@ -40,10 +40,14 @@ func (u *StoreUseCase) Create(ctx context.Context, request *model.StoreRequest) 
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Format data request tidak valid")
 	}
 
+	// Check if user already has a store
 	existingStore := new(entity.Store)
-	if err := u.StoreRepo.FindByUserID(tx, existingStore, request.UserID); err == nil {
-		u.Log.Warnf("User already has a store : %+v", err)
-		return nil, fiber.NewError(fiber.StatusConflict, "User already has a store")
+	err := u.StoreRepo.FindByUserID(tx, existingStore, request.UserID)
+	if err == nil {
+		// User already has a store - return it instead of error
+		u.Log.Infof("User %s already has a store: %s", request.UserID, existingStore.ID)
+		tx.Rollback()
+		return converter.StoreToResponse(existingStore), nil
 	}
 
 	store := &entity.Store{

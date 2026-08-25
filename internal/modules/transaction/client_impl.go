@@ -69,7 +69,7 @@ func (c *clientImpl) GetDailySalesHistoryByProduct(ctx context.Context, storeID 
 	return history, nil
 }
 
-func (c *clientImpl) ListPurchasesByCustomerProduct(ctx context.Context, storeID string, customerID int, productID string) ([]transaction_client.CustomerProductPurchaseDTO, error) {
+func (c *clientImpl) ListPurchasesByCustomerProduct(ctx context.Context, storeID string, customerID string, productID string) ([]transaction_client.CustomerProductPurchaseDTO, error) {
 	rows, err := c.transactionItemRepo.ListPurchasesByCustomerProduct(c.db.WithContext(ctx), storeID, customerID, productID)
 	if err != nil {
 		return nil, err

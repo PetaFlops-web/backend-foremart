@@ -28,7 +28,7 @@ type TransactionPreviewResponse struct {
 type TransactionResponse struct {
 	ID              string                    `json:"id"`
 	StoreID         string                    `json:"store_id"`
-	CustomerID      int                       `json:"customer_id"`
+	CustomerID      string                    `json:"customer_id"`
 	CustomerPhone   string                    `json:"customer_phone"`
 	CustomerName    string                    `json:"customer_name"`
 	TransactionDate string                    `json:"transaction_date"`

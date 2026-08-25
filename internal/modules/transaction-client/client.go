@@ -36,6 +36,6 @@ type Client interface {
 	ListItemsByProduct(ctx context.Context, productId string, lookbackDays int) ([]TransactionItemDTO, error)
 	SumQtyByProductInMonth(ctx context.Context, productId string, yearMonth string) (int, error)
 	GetDailySalesHistoryByProduct(ctx context.Context, storeID string, productID string, historyDays int, endDate string) ([]float64, error)
-	ListPurchasesByCustomerProduct(ctx context.Context, storeID string, customerID int, productID string) ([]CustomerProductPurchaseDTO, error)
+	ListPurchasesByCustomerProduct(ctx context.Context, storeID string, customerID string, productID string) ([]CustomerProductPurchaseDTO, error)
 	ListItemsByTransaction(ctx context.Context, transactionID string) ([]TransactionItemDTO, error)
 }

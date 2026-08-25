@@ -48,7 +48,7 @@ type InventoryPredictionBatchRequest struct {
 
 // SurvivalPredictionRequest maps to POST /predict-survival
 type SurvivalPredictionRequest struct {
-	CustomerID       int     `json:"customer_id"`
+	CustomerID       int64   `json:"customer_id"`
 	StockCode        string  `json:"stock_code"`
 	Quantity         float64 `json:"quantity"`
 	UnitPrice        float64 `json:"unit_price"`
@@ -66,7 +66,7 @@ type SurvivalPredictionRequest struct {
 
 // SurvivalPredictionResponse maps to the ML service response
 type SurvivalPredictionResponse struct {
-	CustomerID             int     `json:"customer_id"`
+	CustomerID             int64   `json:"customer_id"`
 	StockCode              string  `json:"stock_code"`
 	PredictedRestockDate   string  `json:"predicted_restock_date"`
 	PredDaysLeft           int     `json:"pred_days_left"`

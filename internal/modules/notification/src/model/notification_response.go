@@ -3,7 +3,7 @@ package model
 type NotificationResponse struct {
 	ID                   string `json:"id"`
 	StoreID              string `json:"store_id"`
-	CustomerID           int    `json:"customer_id"`
+	CustomerID           string `json:"customer_id"`
 	ProductID            string `json:"product_id"`
 	Channel              string `json:"channel"`
 	Message              string `json:"message"`

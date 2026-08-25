@@ -10,6 +10,7 @@ import (
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer/src/repository"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -59,6 +60,7 @@ func (u *CustomerUseCase) Create(ctx context.Context, request *model.CreateCusto
 	}
 
 	customer := &entity.Customer{
+		ID:               uuid.New().String(),
 		Name:             request.Name,
 		Phone:            request.Phone,
 		CreatedByStoreID: request.StoreID,
@@ -77,12 +79,12 @@ func (u *CustomerUseCase) Create(ctx context.Context, request *model.CreateCusto
 	return converter.CustomerToResponse(customer), nil
 }
 
-func (u *CustomerUseCase) Get(ctx context.Context, storeId string, id int) (*model.CustomerResponse, error) {
+func (u *CustomerUseCase) Get(ctx context.Context, storeId, customerID string) (*model.CustomerResponse, error) {
 	tx := u.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
 	customer := new(entity.Customer)
-	if err := u.CustomerRepository.FindById(tx, customer, id); err != nil {
+	if err := u.CustomerRepository.FindById(tx, customer, customerID); err != nil {
 		u.Log.Warnf("Customer not found : %+v", err)
 		return nil, fiber.NewError(fiber.StatusNotFound, "Customer tidak ditemukan")
 	}

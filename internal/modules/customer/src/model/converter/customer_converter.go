@@ -11,6 +11,7 @@ func CustomerToResponse(c *entity.Customer) *model.CustomerResponse {
 	}
 	return &model.CustomerResponse{
 		ID:               c.ID,
+		NumericID:        c.NumericID,
 		Name:             c.Name,
 		Phone:            c.Phone,
 		CreatedByStoreID: c.CreatedByStoreID,
