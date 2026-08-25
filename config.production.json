@@ -30,5 +30,12 @@
   },
   "group": {
     "id": "smbk_group"
+  },
+  "fonnte": {
+    "token": "${FONNTE_TOKEN}",
+    "target": "${FONNTE_TARGET}"
+  },
+  "notification": {
+    "schedule": "0 8 * * *"
   }
 }
