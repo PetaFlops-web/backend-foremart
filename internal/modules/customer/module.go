@@ -2,7 +2,6 @@ package customer
 
 import (
 	customer_client "github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer-client"
-	"github.com/gofiber/fiber/v2"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer/src/controller"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer/src/entity"
 	"github.com/PetaFlops-web/backend-shop-smbk/internal/modules/customer/src/repository"
@@ -36,8 +35,4 @@ func (m *Module) Client() customer_client.Client {
 
 func (m *Module) Migrate() error {
 	return m.db.AutoMigrate(&entity.Customer{})
-}
-
-func (m *Module) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
-	RegisterRoutes(router, authMiddleware)
 }
